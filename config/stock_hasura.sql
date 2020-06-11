@@ -20,7 +20,7 @@ SET row_security = off;
 -- Name: hdb_catalog; Type: SCHEMA; Schema: -; Owner: hasurauser
 --
 
-CREATE SCHEMA hdb_catalog;
+CREATE SCHEMA IF NOT EXISTS hdb_catalog;
 
 
 ALTER SCHEMA hdb_catalog OWNER TO hasurauser;
@@ -1089,3 +1089,17 @@ ALTER TABLE ONLY hdb_catalog.hdb_relationship
 -- PostgreSQL database dump complete
 --
 
+-- 
+-- Change the access to hdb_catalog tables
+-- 
+
+REVOKE ALL ON hdb_catalog.hdb_table FROM hasurauser;
+GRANT SELECT ON hdb_catalog.hdb_table TO hasurauser;
+
+
+REVOKE ALL ON hdb_catalog.hdb_relationship FROM hasurauser;
+GRANT SELECT ON hdb_catalog.hdb_relationship TO hasurauser;
+
+
+REVOKE ALL ON hdb_catalog.hdb_permission FROM hasurauser;
+GRANT SELECT ON hdb_catalog.hdb_permission TO hasurauser;
