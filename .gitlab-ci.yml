@@ -1,0 +1,427 @@
+image: docker:stable
+
+variables:
+   # When using dind service we need to instruct docker, to talk with the
+   # daemon started inside of the service. The daemon is available with
+   # a network connection instead of the default /var/run/docker.sock socket.
+   #
+   # The 'docker' hostname is the alias of the service container as described at
+   # https://docs.gitlab.com/ee/ci/docker/using_docker_images.html#accessing-the-services
+   #
+   # Note that if you're using the Kubernetes executor, the variable should be set to
+   # tcp://localhost:2375/ because of how the Kubernetes executor connects services
+   # to the job container
+   # DOCKER_HOST: tcp://localhost:2375/
+   #
+   # For non-Kubernetes executors, we use tcp://docker:2375/
+   DOCKER_HOST: tcp://docker:2375/
+   # When using dind, it's wise to use the overlayfs driver for
+   # improved performance.
+   DOCKER_DRIVER: overlay2
+   
+   # Since the docker:dind container and the runner container don’t share their root
+   # filesystem, the job’s working directory can be used as a mount point for children
+   # containers. For example, if you have files you want to share with a child container,
+   # you may create a subdirectory under /builds/$CI_PROJECT_PATH and use it as your
+   # mount point.
+   MOUNT_POINT: /builds/$CI_PROJECT_PATH/mnt
+   
+   # For EBI you need to override the definition of CI_REGISTRY to remove the port number
+   CI_REGISTRY: dockerhub.ebi.ac.uk
+   CI_REGISTRY_IMAGE: $CI_REGISTRY/$CI_PROJECT_PATH
+
+   #NOW: $(date '+%Y-%m-%d-%H-%M-%S')
+   #NOW: $(date '+%Y-%m-%d')
+   
+   # To solve the issue with the Docker in Docker 19.03 service.
+   # Logged as: GitLab.com CI jobs failing if using docker:stable-dind image
+   # see: https://gitlab.com/gitlab-com/gl-infra/production/issues/982
+   DOCKER_TLS_CERTDIR: ""
+
+services:
+   - docker:dind
+
+# Use this command to look at your docker environment
+# Note: This step can be overwritten by before_script sections in specific jobs.
+#
+#before_script:
+#   - docker info
+
+
+stages:
+   - download
+   - synonym-formatting
+   - mgi-formatting
+   - build
+   - dev-deploy
+   - dev-test
+   - production-deploy
+   - production-test
+
+
+#
+# Data download stage
+#
+
+
+
+HGNC_data:
+    stage: download
+    before_script:
+        - apk add --update curl && rm -rf /var/cache/apk/*
+    script:
+        
+        # Establish a data directory
+        - mkdir -p "$MOUNT_POINT"
+        - cd "$MOUNT_POINT"
+        
+        # Fetch data files for the service
+        # HGNC_data
+        - curl -sSLN -O ftp://ftp.ebi.ac.uk/pub/databases/genenames/new/tsv/alternative_loci_set.txt
+        - curl -sSLN -O ftp://ftp.ebi.ac.uk/pub/databases/genenames/new/tsv/non_alt_loci_set.txt
+        - curl -sSLN -O ftp://ftp.ebi.ac.uk/pub/databases/genenames/new/tsv/hgnc_complete_set.txt
+
+         # HCOP_data
+        - curl -sSLN -O ftp://ftp.ebi.ac.uk/pub/databases/genenames/hcop/human_mouse_hcop_fifteen_column.txt.gz && gunzip human_mouse_hcop_fifteen_column.txt.gz
+
+    artifacts:
+        paths:
+            - "$MOUNT_POINT/"
+
+
+
+MGI_data:
+    stage: download
+    before_script:
+        - apk add --update curl && rm -rf /var/cache/apk/*
+    script:
+
+        # Establish a data directory
+        - mkdir -p "$MOUNT_POINT"
+        - cd "$MOUNT_POINT"
+        
+        # MGI Gene data
+        - curl -sSLN -O http://www.informatics.jax.org/downloads/reports/MGI_Gene_Model_Coord.rpt
+        # Remove the additional tab at the end of the file
+        - sed 's/[[:space:]]*$//' MGI_Gene_Model_Coord.rpt > MGI_Gene_Model_Coord.rpt.tmp && mv MGI_Gene_Model_Coord.rpt.tmp MGI_Gene_Model_Coord.rpt
+
+        # MGI_Mrk_List2_data
+        - curl -sSLN -O http://www.informatics.jax.org/downloads/reports/MRK_List2.rpt
+
+    artifacts:
+        paths:
+             - "$MOUNT_POINT/"
+
+
+
+Extra_data:
+    stage: download
+    before_script:
+        - apk add --update curl && rm -rf /var/cache/apk/*
+    script:
+        
+        # Establish a data directory
+        - mkdir -p "$MOUNT_POINT"
+        - cd "$MOUNT_POINT"
+        
+        # Fetch data files for the service
+        
+        # IDG        
+        - cp "$CI_PROJECT_DIR"/data/idg_out.txt "$MOUNT_POINT"/idg_out.txt
+        
+        # ClinGen
+        - curl -sSLN -O https://search.clinicalgenome.org/kb/gene-dosage.csv
+        
+        # Gnomad Constraint pLoF Metrics by Gene
+        - curl -sSLN -O https://storage.googleapis.com/gnomad-public/release/2.1.1/constraint/gnomad.v2.1.1.lof_metrics.by_gene.txt.bgz
+        
+        # DepMap Achilles_gene_effect.csv - DepMap Public 20Q2
+        - curl -sSLN -O https://ndownloader.figshare.com/files/22629068
+        
+        # Process the Achilles_gene_effect.csv file
+        - awk -f "$CI_PROJECT_DIR"/scripts/transpose_rows_to_cols.awk 22629068 > achilles_gene_effect.col.tsv
+        
+        # Format the achilles file for loading
+        # In the main body sed replaces parenthesis and spaces around the entrez acc id with delimiters, and removes any trailing tab and space characters.
+        # In the header row that describes the cell lines the column heading DepMap_ID is removed with sed so the names can be loaded into a table.
+        - cat achilles_gene_effect.col.tsv | sed -e 's/ (/|/g' | sed -e 's/[)]./|/g' | sed -e 's/[[:space:]]\{1,\}$//g' | sed -e 's/DepMap_ID.//g' > achilles_gene_effect.col.formatted.tsv
+        
+
+    artifacts:
+        paths:
+            - "$MOUNT_POINT/"
+
+
+
+IMPC_Viability:
+    image: ubuntu:latest
+    stage: download
+    before_script:
+        - apt-get update && apt-get install -y jq curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+    script:
+        
+        # Establish a data directory
+        - mkdir -p "$MOUNT_POINT"
+        - cd "$MOUNT_POINT"
+        
+        - source "$CI_PROJECT_DIR"/scripts/extract_impc_viability_data.sh
+        
+
+    artifacts:
+        paths:
+            - "$MOUNT_POINT/"
+
+
+
+IMPC_Phenotypes:
+    image: ubuntu:latest
+    stage: download
+    before_script:
+        - apt-get update && apt-get install -y jq curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+    script:
+        
+        # Establish a data directory
+        - mkdir -p "$MOUNT_POINT"
+        - cd "$MOUNT_POINT"
+        
+        - source "$CI_PROJECT_DIR"/scripts/extract_impc_phenotype_data.sh
+        
+
+    artifacts:
+        paths:
+            - "$MOUNT_POINT/"
+
+
+
+IMPC_Stats:
+    image: ubuntu:latest
+    stage: download
+    before_script:
+        - apt-get update && apt-get install -y jq curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+    script:
+        
+        # Establish a data directory
+        - mkdir -p "$MOUNT_POINT"
+        - cd "$MOUNT_POINT"
+        
+        - source "$CI_PROJECT_DIR"/scripts/extract_impc_stats_data.sh
+        
+
+    artifacts:
+        paths:
+            - "$MOUNT_POINT/"
+
+
+
+gnomAD_pLoF:
+    image: ubuntu:latest
+    stage: download
+    before_script:
+        - apt-get update && apt-get install -y autoconf automake make gcc perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev git curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+        - git clone https://github.com/samtools/htslib.git
+        - cd htslib/
+        - autoheader && autoconf && ./configure && make && make install && cd ../
+    script:
+        
+        # Establish a data directory
+        - mkdir -p "$MOUNT_POINT"
+        - cd "$MOUNT_POINT"
+        
+        - curl -sSLN -O https://storage.googleapis.com/gnomad-public/release/2.1.1/constraint/gnomad.v2.1.1.lof_metrics.by_gene.txt.bgz
+        - bgzip -d gnomad.v2.1.1.lof_metrics.by_gene.txt.bgz
+        - mv gnomad.* gnomad.lof_metrics.by_gene.txt
+        
+
+    artifacts:
+        paths:
+            - "$MOUNT_POINT/"
+
+#
+# Data formatting stage
+#
+
+
+Synonym-formatting:
+    stage: synonym-formatting
+    before_script:
+        - apk add --update python3 && rm -rf /var/cache/apk/*
+    script:
+        # Extract the Human gene synonyms - this creates the file HGNC_synonyms.txt
+        - python3 "$CI_PROJECT_DIR"/scripts/HGNCPreProcessor.py "$MOUNT_POINT"/alternative_loci_set.txt "$MOUNT_POINT"/non_alt_loci_set.txt
+
+        # Extract the mouse gene synonyms - this creates the file Mrk_synonyms.txt
+        - python3 "$CI_PROJECT_DIR"/scripts/MgiMrkPreProcessor.py "$MOUNT_POINT"/MRK_List2.rpt
+
+    dependencies:
+        - HGNC_data
+        - MGI_data
+        - Extra_data
+        - IMPC_Viability
+        - IMPC_Phenotypes
+        - IMPC_Stats
+        - gnomAD_pLoF
+    artifacts:
+        paths:
+            - "$MOUNT_POINT/"
+
+
+build_image:
+    stage: build
+    before_script:
+        - echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin  ${CI_REGISTRY}
+        - NOW=$(date '+%Y-%m-%d-%H-%M-%S')
+        - echo "export NOW=${NOW}" > ${MOUNT_POINT}/datetime.env
+    script:
+
+        - export
+        - source ${MOUNT_POINT}/datetime.env
+        - echo ${NOW}
+        - docker build -t batchdownload-db .  | tee ${MOUNT_POINT}/build.log
+        - docker run --name batchdbcontainer -v "$MOUNT_POINT:/mnt" -d batchdownload-db
+
+        # Time is required to load the data
+        # Hence the long pause period. 
+        #
+        # An alternative would be to copy the data required into to the image
+        # when it is built, but this is not trivial in this build system, and a downside  would be
+        # that every time the container starts there would always be a lag while the data was loaded.
+        
+        - sleep "${DB_LOAD_TIME}"
+
+        - docker exec batchdbcontainer sh /usr/local/data/postgres_processing_time.sh
+        - docker exec batchdbcontainer sh -c "rm -r /usr/local/data"
+        
+        - echo "${CI_REGISTRY_IMAGE}":"${NOW}"
+        - docker commit batchdbcontainer "${CI_REGISTRY_IMAGE}":"${NOW}"
+        
+        - docker tag "${CI_REGISTRY_IMAGE}":"${NOW}" "${CI_REGISTRY_IMAGE}":latest
+        - docker push "${CI_REGISTRY_IMAGE}"  | tee ${MOUNT_POINT}/push.log
+
+        - docker logout ${CI_REGISTRY}
+
+        # PUSH THE IMAGE TO DOCKERHUB
+        - echo "${DOCKER_HUB_PWD}" | docker login -u "${DOCKER_HUB_USER}" --password-stdin
+ 
+        - docker tag "${CI_REGISTRY_IMAGE}":"${NOW}" "${DOCKER_HUB_USER}"/"${DOCKER_HUB_REPO}":"${NOW}"
+        - docker tag "${CI_REGISTRY_IMAGE}":"${NOW}" "${DOCKER_HUB_USER}"/"${DOCKER_HUB_REPO}":latest
+        - docker push "${DOCKER_HUB_USER}"/"${DOCKER_HUB_REPO}"  | tee ${MOUNT_POINT}/dockerhub-push-latest.log
+
+        - docker logout
+        
+
+
+    dependencies:
+        - Synonym-formatting
+    artifacts:
+        name: "database-${CI_JOB_ID}"
+        paths:
+            - ${MOUNT_POINT}
+
+
+dev-deploy:
+  stage: dev-deploy
+  image: dtzar/helm-kubectl:2.13.0
+  only:
+    refs:
+      - master
+  script:
+    - source ${MOUNT_POINT}/datetime.env
+    - echo ${NOW}
+    #
+    - kubectl config set-cluster local --server="${KUBERNETES_ENDPOINT}"
+    - kubectl config set clusters.local.certificate-authority-data "${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}"
+    - kubectl config set-credentials "${KUBERNETES_DEV_USER}" --token="${KUBERNETES_DEV_USER_TOKEN}"
+    - kubectl config set-context "${KUBERNETES_DEV_NAMESPACE}" --cluster=local --user=${KUBERNETES_DEV_USER} --namespace="${KUBERNETES_DEV_NAMESPACE}"
+    - kubectl config use-context "${KUBERNETES_DEV_NAMESPACE}"
+    - kubectl version
+    #
+    - sed -i "s/latest/${NOW}/g" kube/dev/database/essential-genes-database-deployment.yaml
+    - sed -i "s/STRING_REPLACED_DURING_REDEPLOY/$(date)/g" kube/dev/database/essential-genes-database-deployment.yaml
+    
+    - |
+      if kubectl apply -f kube/dev/database/essential-genes-database-deployment.yaml --record | grep -q unchanged; then
+          echo "=> Patching deployment to force image update."
+          kubectl patch -f kube/dev/database/essential-genes-database-deployment.yaml --record -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+      else
+          echo "=> Deployment apply has changed the object, no need to force image update."
+      fi
+
+
+    - kubectl rollout status -f kube/dev/database/essential-genes-database-deployment.yaml
+    - kubectl get all,ing 
+
+
+
+dev-test:
+    image: ubuntu:latest
+    stage: dev-test
+    before_script:
+        - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+    script:
+        
+        # Establish a data directory
+        - mkdir -p "$MOUNT_POINT"
+        - cd "$MOUNT_POINT"
+        
+        - source "$CI_PROJECT_DIR"/scripts/service_test.sh  | tee ${MOUNT_POINT}/dev-test.log
+        
+
+    artifacts:
+        paths:
+            - "$MOUNT_POINT/"
+
+
+
+production-deploy:
+  stage: production-deploy
+  image: dtzar/helm-kubectl:2.13.0
+  only:
+    refs:
+      - master
+  script:
+    - source ${MOUNT_POINT}/datetime.env
+    - echo ${NOW}
+    #
+    - kubectl config set-cluster local --server="${KUBERNETES_ENDPOINT}"
+    - kubectl config set clusters.local.certificate-authority-data "${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}"
+    - kubectl config set-credentials "${KUBERNETES_USER}" --token="${KUBERNETES_USER_TOKEN}"
+    - kubectl config set-context "${KUBERNETES_NAMESPACE}" --cluster=local --user=${KUBERNETES_USER} --namespace="${KUBERNETES_NAMESPACE}"
+    - kubectl config use-context "${KUBERNETES_NAMESPACE}"
+    - kubectl version
+    #
+    - sed -i "s/latest/${NOW}/g" kube/production/database/essential-genes-database-deployment.yaml
+    - sed -i "s/STRING_REPLACED_DURING_REDEPLOY/$(date)/g" kube/production/database/essential-genes-database-deployment.yaml
+    
+    - |
+      if kubectl apply -f kube/production/database/essential-genes-database-deployment.yaml --record | grep -q unchanged; then
+          echo "=> Patching deployment to force image update."
+          kubectl patch -f kube/production/database/essential-genes-database-deployment.yaml --record -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+      else
+          echo "=> Deployment apply has changed the object, no need to force image update."
+      fi
+
+
+    - kubectl rollout status -f kube/production/database/essential-genes-database-deployment.yaml
+    - kubectl get all,ing 
+
+
+
+
+
+production-test:
+    image: ubuntu:latest
+    stage: production-test
+    before_script:
+        - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+    script:
+        
+        # Establish a data directory
+        - mkdir -p "$MOUNT_POINT"
+        - cd "$MOUNT_POINT"
+        
+        - source "$CI_PROJECT_DIR"/scripts/service_test.sh -p  | tee ${MOUNT_POINT}/production-test.log
+        
+
+    artifacts:
+        paths:
+            - "$MOUNT_POINT/"
