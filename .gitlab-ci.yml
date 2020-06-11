@@ -53,10 +53,10 @@ stages:
    - synonym-formatting
    - mgi-formatting
    - build
-   - dev-deploy
-   - dev-test
-   - production-deploy
-   - production-test
+#   - dev-deploy
+#   - dev-test
+#   - production-deploy
+#   - production-test
 
 
 #
@@ -112,130 +112,6 @@ MGI_data:
         paths:
              - "$MOUNT_POINT/"
 
-
-
-Extra_data:
-    stage: download
-    before_script:
-        - apk add --update curl && rm -rf /var/cache/apk/*
-    script:
-        
-        # Establish a data directory
-        - mkdir -p "$MOUNT_POINT"
-        - cd "$MOUNT_POINT"
-        
-        # Fetch data files for the service
-        
-        # IDG        
-        - cp "$CI_PROJECT_DIR"/data/idg_out.txt "$MOUNT_POINT"/idg_out.txt
-        
-        # ClinGen
-        - curl -sSLN -O https://search.clinicalgenome.org/kb/gene-dosage.csv
-        
-        # Gnomad Constraint pLoF Metrics by Gene
-        - curl -sSLN -O https://storage.googleapis.com/gnomad-public/release/2.1.1/constraint/gnomad.v2.1.1.lof_metrics.by_gene.txt.bgz
-        
-        # DepMap Achilles_gene_effect.csv - DepMap Public 20Q2
-        - curl -sSLN -O https://ndownloader.figshare.com/files/22629068
-        
-        # Process the Achilles_gene_effect.csv file
-        - awk -f "$CI_PROJECT_DIR"/scripts/transpose_rows_to_cols.awk 22629068 > achilles_gene_effect.col.tsv
-        
-        # Format the achilles file for loading
-        # In the main body sed replaces parenthesis and spaces around the entrez acc id with delimiters, and removes any trailing tab and space characters.
-        # In the header row that describes the cell lines the column heading DepMap_ID is removed with sed so the names can be loaded into a table.
-        - cat achilles_gene_effect.col.tsv | sed -e 's/ (/|/g' | sed -e 's/[)]./|/g' | sed -e 's/[[:space:]]\{1,\}$//g' | sed -e 's/DepMap_ID.//g' > achilles_gene_effect.col.formatted.tsv
-        
-
-    artifacts:
-        paths:
-            - "$MOUNT_POINT/"
-
-
-
-IMPC_Viability:
-    image: ubuntu:latest
-    stage: download
-    before_script:
-        - apt-get update && apt-get install -y jq curl && apt-get clean && rm -rf /var/lib/apt/lists/*
-    script:
-        
-        # Establish a data directory
-        - mkdir -p "$MOUNT_POINT"
-        - cd "$MOUNT_POINT"
-        
-        - source "$CI_PROJECT_DIR"/scripts/extract_impc_viability_data.sh
-        
-
-    artifacts:
-        paths:
-            - "$MOUNT_POINT/"
-
-
-
-IMPC_Phenotypes:
-    image: ubuntu:latest
-    stage: download
-    before_script:
-        - apt-get update && apt-get install -y jq curl && apt-get clean && rm -rf /var/lib/apt/lists/*
-    script:
-        
-        # Establish a data directory
-        - mkdir -p "$MOUNT_POINT"
-        - cd "$MOUNT_POINT"
-        
-        - source "$CI_PROJECT_DIR"/scripts/extract_impc_phenotype_data.sh
-        
-
-    artifacts:
-        paths:
-            - "$MOUNT_POINT/"
-
-
-
-IMPC_Stats:
-    image: ubuntu:latest
-    stage: download
-    before_script:
-        - apt-get update && apt-get install -y jq curl && apt-get clean && rm -rf /var/lib/apt/lists/*
-    script:
-        
-        # Establish a data directory
-        - mkdir -p "$MOUNT_POINT"
-        - cd "$MOUNT_POINT"
-        
-        - source "$CI_PROJECT_DIR"/scripts/extract_impc_stats_data.sh
-        
-
-    artifacts:
-        paths:
-            - "$MOUNT_POINT/"
-
-
-
-gnomAD_pLoF:
-    image: ubuntu:latest
-    stage: download
-    before_script:
-        - apt-get update && apt-get install -y autoconf automake make gcc perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev git curl && apt-get clean && rm -rf /var/lib/apt/lists/*
-        - git clone https://github.com/samtools/htslib.git
-        - cd htslib/
-        - autoheader && autoconf && ./configure && make && make install && cd ../
-    script:
-        
-        # Establish a data directory
-        - mkdir -p "$MOUNT_POINT"
-        - cd "$MOUNT_POINT"
-        
-        - curl -sSLN -O https://storage.googleapis.com/gnomad-public/release/2.1.1/constraint/gnomad.v2.1.1.lof_metrics.by_gene.txt.bgz
-        - bgzip -d gnomad.v2.1.1.lof_metrics.by_gene.txt.bgz
-        - mv gnomad.* gnomad.lof_metrics.by_gene.txt
-        
-
-    artifacts:
-        paths:
-            - "$MOUNT_POINT/"
-
 #
 # Data formatting stage
 #
@@ -255,11 +131,6 @@ Synonym-formatting:
     dependencies:
         - HGNC_data
         - MGI_data
-        - Extra_data
-        - IMPC_Viability
-        - IMPC_Phenotypes
-        - IMPC_Stats
-        - gnomAD_pLoF
     artifacts:
         paths:
             - "$MOUNT_POINT/"
@@ -276,8 +147,8 @@ build_image:
         - export
         - source ${MOUNT_POINT}/datetime.env
         - echo ${NOW}
-        - docker build -t batchdownload-db .  | tee ${MOUNT_POINT}/build.log
-        - docker run --name batchdbcontainer -v "$MOUNT_POINT:/mnt" -d batchdownload-db
+        - docker build -t orthology-db .  | tee ${MOUNT_POINT}/build.log
+        - docker run --name orthodbcontainer -v "$MOUNT_POINT:/mnt" -d orthology-db
 
         # Time is required to load the data
         # Hence the long pause period. 
@@ -288,11 +159,11 @@ build_image:
         
         - sleep "${DB_LOAD_TIME}"
 
-        - docker exec batchdbcontainer sh /usr/local/data/postgres_processing_time.sh
-        - docker exec batchdbcontainer sh -c "rm -r /usr/local/data"
+        - docker exec orthodbcontainer sh /usr/local/data/postgres_processing_time.sh
+        - docker exec orthodbcontainer sh -c "rm -r /usr/local/data"
         
         - echo "${CI_REGISTRY_IMAGE}":"${NOW}"
-        - docker commit batchdbcontainer "${CI_REGISTRY_IMAGE}":"${NOW}"
+        - docker commit orthodbcontainer "${CI_REGISTRY_IMAGE}":"${NOW}"
         
         - docker tag "${CI_REGISTRY_IMAGE}":"${NOW}" "${CI_REGISTRY_IMAGE}":latest
         - docker push "${CI_REGISTRY_IMAGE}"  | tee ${MOUNT_POINT}/push.log
@@ -318,110 +189,110 @@ build_image:
             - ${MOUNT_POINT}
 
 
-dev-deploy:
-  stage: dev-deploy
-  image: dtzar/helm-kubectl:2.13.0
-  only:
-    refs:
-      - master
-  script:
-    - source ${MOUNT_POINT}/datetime.env
-    - echo ${NOW}
-    #
-    - kubectl config set-cluster local --server="${KUBERNETES_ENDPOINT}"
-    - kubectl config set clusters.local.certificate-authority-data "${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}"
-    - kubectl config set-credentials "${KUBERNETES_DEV_USER}" --token="${KUBERNETES_DEV_USER_TOKEN}"
-    - kubectl config set-context "${KUBERNETES_DEV_NAMESPACE}" --cluster=local --user=${KUBERNETES_DEV_USER} --namespace="${KUBERNETES_DEV_NAMESPACE}"
-    - kubectl config use-context "${KUBERNETES_DEV_NAMESPACE}"
-    - kubectl version
-    #
-    - sed -i "s/latest/${NOW}/g" kube/dev/database/essential-genes-database-deployment.yaml
-    - sed -i "s/STRING_REPLACED_DURING_REDEPLOY/$(date)/g" kube/dev/database/essential-genes-database-deployment.yaml
-    
-    - |
-      if kubectl apply -f kube/dev/database/essential-genes-database-deployment.yaml --record | grep -q unchanged; then
-          echo "=> Patching deployment to force image update."
-          kubectl patch -f kube/dev/database/essential-genes-database-deployment.yaml --record -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      else
-          echo "=> Deployment apply has changed the object, no need to force image update."
-      fi
-
-
-    - kubectl rollout status -f kube/dev/database/essential-genes-database-deployment.yaml
-    - kubectl get all,ing 
-
-
-
-dev-test:
-    image: ubuntu:latest
-    stage: dev-test
-    before_script:
-        - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
-    script:
-        
-        # Establish a data directory
-        - mkdir -p "$MOUNT_POINT"
-        - cd "$MOUNT_POINT"
-        
-        - source "$CI_PROJECT_DIR"/scripts/service_test.sh  | tee ${MOUNT_POINT}/dev-test.log
-        
-
-    artifacts:
-        paths:
-            - "$MOUNT_POINT/"
-
-
-
-production-deploy:
-  stage: production-deploy
-  image: dtzar/helm-kubectl:2.13.0
-  only:
-    refs:
-      - master
-  script:
-    - source ${MOUNT_POINT}/datetime.env
-    - echo ${NOW}
-    #
-    - kubectl config set-cluster local --server="${KUBERNETES_ENDPOINT}"
-    - kubectl config set clusters.local.certificate-authority-data "${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}"
-    - kubectl config set-credentials "${KUBERNETES_USER}" --token="${KUBERNETES_USER_TOKEN}"
-    - kubectl config set-context "${KUBERNETES_NAMESPACE}" --cluster=local --user=${KUBERNETES_USER} --namespace="${KUBERNETES_NAMESPACE}"
-    - kubectl config use-context "${KUBERNETES_NAMESPACE}"
-    - kubectl version
-    #
-    - sed -i "s/latest/${NOW}/g" kube/production/database/essential-genes-database-deployment.yaml
-    - sed -i "s/STRING_REPLACED_DURING_REDEPLOY/$(date)/g" kube/production/database/essential-genes-database-deployment.yaml
-    
-    - |
-      if kubectl apply -f kube/production/database/essential-genes-database-deployment.yaml --record | grep -q unchanged; then
-          echo "=> Patching deployment to force image update."
-          kubectl patch -f kube/production/database/essential-genes-database-deployment.yaml --record -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      else
-          echo "=> Deployment apply has changed the object, no need to force image update."
-      fi
-
-
-    - kubectl rollout status -f kube/production/database/essential-genes-database-deployment.yaml
-    - kubectl get all,ing 
-
-
-
-
-
-production-test:
-    image: ubuntu:latest
-    stage: production-test
-    before_script:
-        - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
-    script:
-        
-        # Establish a data directory
-        - mkdir -p "$MOUNT_POINT"
-        - cd "$MOUNT_POINT"
-        
-        - source "$CI_PROJECT_DIR"/scripts/service_test.sh -p  | tee ${MOUNT_POINT}/production-test.log
-        
-
-    artifacts:
-        paths:
-            - "$MOUNT_POINT/"
+#dev-deploy:
+#  stage: dev-deploy
+#  image: dtzar/helm-kubectl:2.13.0
+#  only:
+#    refs:
+#      - master
+#  script:
+#    - source ${MOUNT_POINT}/datetime.env
+#    - echo ${NOW}
+#    #
+#    - kubectl config set-cluster local --server="${KUBERNETES_ENDPOINT}"
+#    - kubectl config set clusters.local.certificate-authority-data "${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}"
+#    - kubectl config set-credentials "${KUBERNETES_DEV_USER}" --token="${KUBERNETES_DEV_USER_TOKEN}"
+#    - kubectl config set-context "${KUBERNETES_DEV_NAMESPACE}" --cluster=local --user=${KUBERNETES_DEV_USER} --namespace="${KUBERNETES_DEV_NAMESPACE}"
+#    - kubectl config use-context "${KUBERNETES_DEV_NAMESPACE}"
+#    - kubectl version
+#    #
+#    - sed -i "s/latest/${NOW}/g" kube/dev/database/essential-genes-database-deployment.yaml
+#    - sed -i "s/STRING_REPLACED_DURING_REDEPLOY/$(date)/g" kube/dev/database/essential-genes-database-deployment.yaml
+#    
+#    - |
+#      if kubectl apply -f kube/dev/database/essential-genes-database-deployment.yaml --record | grep -q unchanged; then
+#          echo "=> Patching deployment to force image update."
+#          kubectl patch -f kube/dev/database/essential-genes-database-deployment.yaml --record -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+#      else
+#          echo "=> Deployment apply has changed the object, no need to force image update."
+#      fi
+#
+#
+#    - kubectl rollout status -f kube/dev/database/essential-genes-database-deployment.yaml
+#    - kubectl get all,ing 
+#
+#
+#
+#dev-test:
+#    image: ubuntu:latest
+#    stage: dev-test
+#    before_script:
+#        - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+#    script:
+#        
+#        # Establish a data directory
+#        - mkdir -p "$MOUNT_POINT"
+#        - cd "$MOUNT_POINT"
+#        
+#        - source "$CI_PROJECT_DIR"/scripts/service_test.sh  | tee ${MOUNT_POINT}/dev-test.log
+#        
+#
+#    artifacts:
+#        paths:
+#            - "$MOUNT_POINT/"
+#
+#
+#
+#production-deploy:
+#  stage: production-deploy
+#  image: dtzar/helm-kubectl:2.13.0
+#  only:
+#    refs:
+#      - master
+#  script:
+#    - source ${MOUNT_POINT}/datetime.env
+#    - echo ${NOW}
+#    #
+#    - kubectl config set-cluster local --server="${KUBERNETES_ENDPOINT}"
+#    - kubectl config set clusters.local.certificate-authority-data "${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}"
+#    - kubectl config set-credentials "${KUBERNETES_USER}" --token="${KUBERNETES_USER_TOKEN}"
+#    - kubectl config set-context "${KUBERNETES_NAMESPACE}" --cluster=local --user=${KUBERNETES_USER} --namespace="${KUBERNETES_NAMESPACE}"
+#    - kubectl config use-context "${KUBERNETES_NAMESPACE}"
+#    - kubectl version
+#    #
+#    - sed -i "s/latest/${NOW}/g" kube/production/database/essential-genes-database-deployment.yaml
+#    - sed -i "s/STRING_REPLACED_DURING_REDEPLOY/$(date)/g" kube/production/database/essential-genes-database-deployment.yaml
+#    
+#    - |
+#      if kubectl apply -f kube/production/database/essential-genes-database-deployment.yaml --record | grep -q unchanged; then
+#          echo "=> Patching deployment to force image update."
+#          kubectl patch -f kube/production/database/essential-genes-database-deployment.yaml --record -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+#      else
+#          echo "=> Deployment apply has changed the object, no need to force image update."
+#      fi
+#
+#
+#    - kubectl rollout status -f kube/production/database/essential-genes-database-deployment.yaml
+#    - kubectl get all,ing 
+#
+#
+#
+#
+#
+#production-test:
+#    image: ubuntu:latest
+#    stage: production-test
+#    before_script:
+#        - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+#    script:
+#        
+#        # Establish a data directory
+#        - mkdir -p "$MOUNT_POINT"
+#        - cd "$MOUNT_POINT"
+#        
+#        - source "$CI_PROJECT_DIR"/scripts/service_test.sh -p  | tee ${MOUNT_POINT}/production-test.log
+#        
+#
+#    artifacts:
+#        paths:
+#            - "$MOUNT_POINT/"
