@@ -578,7 +578,7 @@ CREATE TABLE public.ortholog (
     support_count bigint NOT NULL,
     category character varying(255),
     human_gene_id bigint NOT NULL,
-    mouse_gene_id bigint NOT NULL
+    mouse_gene_id bigint NOT NULL,
     is_max_human_to_mouse character varying(255),
     is_max_mouse_to_human character varying(255)    
 );
@@ -878,10 +878,10 @@ ALTER TABLE ONLY public.human_gene_synonym_relation
 
 
 --
--- Name: human_mapping_filter_relation fk7eohu2qia8aukv51oei4ck2us; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: human_mapping_filter fk7eohu2qia8aukv51oei4ck2us; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.human_mapping_filter_relation
+ALTER TABLE ONLY public.human_mapping_filter
     ADD CONSTRAINT fk7eohu2qia8aukv51oei4ck2us FOREIGN KEY (human_gene_id) REFERENCES public.human_gene(id);
 
 
@@ -909,10 +909,10 @@ ALTER TABLE ONLY public.mouse_gene_synonym_relation
 
 
 --
--- Name: mouse_mapping_filter_relation fkhj9wmb2dpowoselyy9ymeq271; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: mouse_mapping_filter fkhj9wmb2dpowoselyy9ymeq271; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.mouse_mapping_filter_relation
+ALTER TABLE ONLY public.mouse_mapping_filter
     ADD CONSTRAINT fkhj9wmb2dpowoselyy9ymeq271 FOREIGN KEY (mouse_gene_id) REFERENCES public.mouse_gene(id);
 
 
