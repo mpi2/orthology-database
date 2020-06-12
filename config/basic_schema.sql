@@ -397,6 +397,54 @@ CREATE TABLE public.mouse_gene_synonym_relation (
 
 ALTER TABLE public.mouse_gene_synonym_relation OWNER TO orthology_admin;
 
+
+
+
+--
+-- Name: mouse_mapping_filter; Type: TABLE; Schema: public; Owner: orthology_admin
+--
+
+CREATE TABLE public.mouse_mapping_filter (
+    id bigint NOT NULL,
+    mouse_gene_id bigint,
+    support_count_threshold bigint,
+    orthologs_above_threshold bigint,
+    mouse_to_human_category character varying(255)
+);
+
+
+ALTER TABLE public.mouse_mapping_filter OWNER TO orthology_admin;
+
+--
+-- Name: mouse_mapping_filter_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+--
+
+CREATE SEQUENCE public.mouse_mapping_filter_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.mouse_mapping_filter_id_seq OWNER TO orthology_admin;
+
+--
+-- Name: mouse_mapping_filter_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+--
+
+ALTER SEQUENCE public.mouse_mapping_filter_id_seq OWNED BY public.mouse_mapping_filter.id;
+
+
+
+
+
+
+
+
+
+
+
 --
 -- Name: human_gene; Type: TABLE; Schema: public; Owner: orthology_admin
 --
@@ -432,6 +480,45 @@ ALTER TABLE public.human_gene_id_seq OWNER TO orthology_admin;
 --
 
 ALTER SEQUENCE public.human_gene_id_seq OWNED BY public.human_gene.id;
+
+
+
+
+--
+-- Name: human_mapping_filter; Type: TABLE; Schema: public; Owner: orthology_admin
+--
+
+CREATE TABLE public.human_mapping_filter (
+    id bigint NOT NULL,
+    human_gene_id bigint,
+    support_count_threshold bigint,
+    orthologs_above_threshold bigint,
+    human_to_mouse_category character varying(255)
+);
+
+
+ALTER TABLE public.human_mapping_filter OWNER TO orthology_admin;
+
+--
+-- Name: human_mapping_filter_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+--
+
+CREATE SEQUENCE public.human_mapping_filter_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.human_mapping_filter_id_seq OWNER TO orthology_admin;
+
+--
+-- Name: human_mapping_filter_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+--
+
+ALTER SEQUENCE public.human_mapping_filter_id_seq OWNED BY public.human_mapping_filter.id;
+
 
 
 --
@@ -485,15 +572,43 @@ ALTER TABLE public.human_gene_synonym_relation OWNER TO orthology_admin;
 --
 
 CREATE TABLE public.ortholog (
+    id bigint NOT NULL,
     support character varying(255) NOT NULL,
+    support_raw text NOT NULL,
     support_count bigint NOT NULL,
     category character varying(255),
     human_gene_id bigint NOT NULL,
     mouse_gene_id bigint NOT NULL
+    is_max_human_to_mouse character varying(255),
+    is_max_mouse_to_human character varying(255)    
 );
 
 
 ALTER TABLE public.ortholog OWNER TO orthology_admin;
+
+
+--
+-- Name: ortholog_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+--
+
+CREATE SEQUENCE public.ortholog_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.ortholog_id_seq OWNER TO orthology_admin;
+
+--
+-- Name: ortholog_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+--
+
+ALTER SEQUENCE public.ortholog_id_seq OWNED BY public.ortholog.id;
+
+
+
 
 
 
@@ -526,6 +641,13 @@ ALTER TABLE ONLY public.hgnc_gene ALTER COLUMN id SET DEFAULT nextval('public.hg
 --
 
 ALTER TABLE ONLY public.human_gene ALTER COLUMN id SET DEFAULT nextval('public.human_gene_id_seq'::regclass);
+
+
+--
+-- Name: human_mapping_filter id; Type: DEFAULT; Schema: public; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY public.human_mapping_filter ALTER COLUMN id SET DEFAULT nextval('public.human_mapping_filter_id_seq'::regclass);
 
 
 --
@@ -564,6 +686,20 @@ ALTER TABLE ONLY public.mouse_gene ALTER COLUMN id SET DEFAULT nextval('public.m
 ALTER TABLE ONLY public.mouse_gene_synonym ALTER COLUMN id SET DEFAULT nextval('public.mouse_gene_synonym_id_seq'::regclass);
 
 
+--
+-- Name: mouse_mapping_filter id; Type: DEFAULT; Schema: public; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY public.mouse_mapping_filter ALTER COLUMN id SET DEFAULT nextval('public.mouse_mapping_filter_id_seq'::regclass);
+
+
+
+--
+-- Name: ortholog id; Type: DEFAULT; Schema: public; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY public.ortholog ALTER COLUMN id SET DEFAULT nextval('public.ortholog_id_seq'::regclass);
+
 
 
 
@@ -601,6 +737,14 @@ ALTER TABLE ONLY public.hgnc_gene
 
 ALTER TABLE ONLY public.human_gene
     ADD CONSTRAINT human_gene_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: human_mapping_filter human_mapping_filter_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY public.human_mapping_filter
+    ADD CONSTRAINT human_mapping_filter_pkey PRIMARY KEY (id);
 
 
 --
@@ -648,6 +792,14 @@ ALTER TABLE ONLY public.mouse_gene
 
 
 --
+-- Name: mouse_mapping_filter mouse_mapping_filter_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY public.mouse_mapping_filter
+    ADD CONSTRAINT mouse_mapping_filter_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: mouse_gene_synonym mouse_gene_synonym_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
 --
 
@@ -670,7 +822,7 @@ ALTER TABLE ONLY public.mouse_gene_synonym_relation
 --
 
 ALTER TABLE ONLY public.ortholog
-    ADD CONSTRAINT ortholog_pkey PRIMARY KEY (mouse_gene_id, human_gene_id, support, support_count);
+    ADD CONSTRAINT ortholog_pkey PRIMARY KEY (id);
 
 
 
@@ -725,6 +877,15 @@ ALTER TABLE ONLY public.human_gene_synonym_relation
 
 
 
+--
+-- Name: human_mapping_filter_relation fk7eohu2qia8aukv51oei4ck2us; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY public.human_mapping_filter_relation
+    ADD CONSTRAINT fk7eohu2qia8aukv51oei4ck2us FOREIGN KEY (human_gene_id) REFERENCES public.human_gene(id);
+
+
+
 
 
 --
@@ -744,6 +905,15 @@ ALTER TABLE ONLY public.mouse_gene_synonym_relation
 
 ALTER TABLE ONLY public.mouse_gene_synonym_relation
     ADD CONSTRAINT fkhj32ev2dpo1oselyy6ymeq562 FOREIGN KEY (mouse_gene_id) REFERENCES public.mouse_gene(id);
+
+
+
+--
+-- Name: mouse_mapping_filter_relation fkhj9wmb2dpowoselyy9ymeq271; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY public.mouse_mapping_filter_relation
+    ADD CONSTRAINT fkhj9wmb2dpowoselyy9ymeq271 FOREIGN KEY (mouse_gene_id) REFERENCES public.mouse_gene(id);
 
 
 
