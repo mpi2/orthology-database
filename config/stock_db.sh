@@ -104,11 +104,11 @@ psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "DROP TABLE hco
 
 
 
-psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "INSERT INTO ortholog (support, support_count,human_gene_id,mouse_gene_id)
-select array_to_string(array( select distinct unnest(string_to_array(support, ','))),',') as list, array_length(array( select distinct unnest(string_to_array(support, ','))),1) as count, human_gene.id, mouse_gene.id from hcop h, human_gene, mouse_gene 
+psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "INSERT INTO ortholog (support, support_raw, support_count,human_gene_id,mouse_gene_id)
+select array_to_string(array( select distinct unnest(string_to_array(support, ','))),',') as list, support, array_length(array( select distinct unnest(string_to_array(support, ','))),1) as count, human_gene.id, mouse_gene.id from hcop h, human_gene, mouse_gene 
 WHERE h.hgnc_acc_id = human_gene.hgnc_acc_id and 
 h.mgi_gene_acc_id = mouse_gene.mgi_gene_acc_id
-GROUP BY list,count,human_gene.id, mouse_gene.id
+GROUP BY list, support, count, human_gene.id, mouse_gene.id
 order by count desc"
 
 
