@@ -116,6 +116,74 @@ psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "DROP TABLE hco
 
 
 
+
+MAX_SUPPORT_COUNT=$(psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -t -c "select max(support_count) from ortholog")
+
+for THRESHOLD in $(seq 1 $MAX_SUPPORT_COUNT); do
+psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "with 
+max_homolog_count as (select count(distinct(o1.human_gene_id)) as "count" from mouse_gene m1 left outer join ortholog o1 on m1.id=o1.mouse_gene_id and o1.support_count >= $THRESHOLD group by m1.mgi_gene_acc_id order by count desc limit 1),
+max_homolog_number as (select count(homologs.mgi_gene_acc_id) from (select m2.mgi_gene_acc_id, count(distinct(o2.human_gene_id)) as "count" from mouse_gene m2 left outer join ortholog o2 on m2.id=o2.mouse_gene_id and o2.support_count >= $THRESHOLD group by m2.mgi_gene_acc_id) as homologs where homologs.count=(select count from max_homolog_count))
+insert into mouse_mapping_filter (mouse_gene_id, support_count_threshold, orthologs_above_threshold, category_for_threshold)
+select m.id, $THRESHOLD as "support_threshold", count(distinct(o.human_gene_id)) as "ortholog_count",
+       CASE WHEN count(distinct(o.human_gene_id))=0 THEN 'no-ortholog'
+            WHEN count(distinct(o.human_gene_id))=1 THEN 'one-to-one'
+           WHEN count(distinct(o.human_gene_id))>1 THEN 'one-to-many'
+       END as "mouse_to_human"
+from mouse_gene m left outer join ortholog o on m.id=o.mouse_gene_id and o.support_count >= 5 group by m.id order by ortholog_count desc"
+done;
+
+for THRESHOLD in $(seq 1 $MAX_SUPPORT_COUNT); do
+psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "with 
+max_homolog_count as (select count(distinct(o1.mouse_gene_id)) as "count" from human_gene h1 left outer join ortholog o1 on h1.id=o1.human_gene_id and o1.support_count >= $THRESHOLD group by h1.hgnc_acc_id order by count desc limit 1),
+max_homolog_number as (select count(homologs.hgnc_acc_id) from (select h2.hgnc_acc_id, count(distinct(o2.mouse_gene_id)) as "count" from human_gene h2 left outer join ortholog o2 on h2.id=o2.human_gene_id and o2.support_count >= $THRESHOLD group by h2.hgnc_acc_id) as homologs where homologs.count=(select count from max_homolog_count))
+insert into human_mapping_filter (human_gene_id, support_count_threshold, orthologs_above_threshold, category_for_threshold)
+select h.id, $THRESHOLD as "support_threshold", count(distinct(o.mouse_gene_id)) as "ortholog_count",
+       CASE WHEN count(distinct(o.mouse_gene_id))=0 THEN 'no-ortholog'
+            WHEN count(distinct(o.mouse_gene_id))=1 THEN 'one-to-one'
+            WHEN count(distinct(o.mouse_gene_id))>1 THEN 'one-to-many'
+       END as "human_to_mouse"
+from human_gene h left outer join ortholog o on h.id=o.human_gene_id and o.support_count >= 5 group by h.id order by ortholog_count desc"
+done;
+
+
+# Update the ortholog table to indicate the max_human_to_mouse and max_mouse_to_human classification.
+
+psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "with 
+human_gene_max_support AS (select max(o1.support_count) as "max", o1.human_gene_id from ortholog o1 group by o1.human_gene_id),
+human_gene_max_support_count AS (select count(o2.id) as "max_count", o2.human_gene_id from ortholog o2 INNER JOIN human_gene_max_support ms ON o2.human_gene_id = ms.human_gene_id and o2.support_count=ms.max group by o2.human_gene_id),
+human_gene_ortholog_count AS (select count(distinct(o3.mouse_gene_id)) as "ortholog_count", o3.human_gene_id from ortholog o3 group by o3.human_gene_id),
+max_human_to_mouse AS (select o4.id, CASE WHEN oc.ortholog_count=1 THEN 'max'
+	    WHEN oc.ortholog_count > 1 AND o4.support_count=ms2.max AND msc.max_count > 1 THEN 'dup_max'
+	    WHEN oc.ortholog_count > 1 AND o4.support_count=ms2.max AND msc.max_count = 1 THEN 'max'
+	    WHEN oc.ortholog_count > 1 AND o4.support_count < ms2.max THEN 'no_max'
+       END as "is_max_human_to_mouse"
+from human_gene_max_support ms2, human_gene_max_support_count msc, human_gene_ortholog_count oc, ortholog o4 where msc.human_gene_id=ms2.human_gene_id and msc.human_gene_id=oc.human_gene_id and msc.human_gene_id=o4.human_gene_id)
+UPDATE ortholog
+SET 
+is_max_human_to_mouse = max_human_to_mouse.is_max_human_to_mouse
+FROM
+max_human_to_mouse
+where
+ortholog.id=max_human_to_mouse.id"
+
+psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "with 
+mouse_gene_max_support AS (select max(o1.support_count) as "max", o1.mouse_gene_id from ortholog o1 group by o1.mouse_gene_id),
+mouse_gene_max_support_count AS (select count(o2.id) as "max_count", o2.mouse_gene_id from ortholog o2 INNER JOIN mouse_gene_max_support ms ON o2.mouse_gene_id = ms.mouse_gene_id and o2.support_count=ms.max group by o2.mouse_gene_id),
+mouse_gene_ortholog_count AS (select count(distinct(o3.human_gene_id)) as "ortholog_count", o3.mouse_gene_id from ortholog o3 group by o3.mouse_gene_id),
+max_mouse_to_human AS (select o4.id, CASE WHEN oc.ortholog_count=1 THEN 'max'
+	    WHEN oc.ortholog_count > 1 AND o4.support_count=ms2.max AND msc.max_count > 1 THEN 'dup_max'
+	    WHEN oc.ortholog_count > 1 AND o4.support_count=ms2.max AND msc.max_count = 1 THEN 'max'
+	    WHEN oc.ortholog_count > 1 AND o4.support_count < ms2.max THEN 'no_max'
+       END as "is_max_mouse_to_human"
+from mouse_gene_max_support ms2, mouse_gene_max_support_count msc, mouse_gene_ortholog_count oc, ortholog o4 where msc.mouse_gene_id=ms2.mouse_gene_id and msc.mouse_gene_id=oc.mouse_gene_id and msc.mouse_gene_id=o4.mouse_gene_id)
+UPDATE ortholog
+SET 
+is_max_mouse_to_human = max_mouse_to_human.is_max_mouse_to_human 
+FROM
+max_mouse_to_human
+where
+ortholog.id=max_mouse_to_human.id"
+
 printf 'end=%s\n' $(date +"%s") >> /usr/local/data/postgres_processing_time.sh
 printf "echo -n 'Postgresql processing time: '\n" >> /usr/local/data/postgres_processing_time.sh
 echo 'printf "'"%d s\n"'" $(( $end - $start ))'   >> /usr/local/data/postgres_processing_time.sh

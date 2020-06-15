@@ -409,7 +409,7 @@ CREATE TABLE public.mouse_mapping_filter (
     mouse_gene_id bigint,
     support_count_threshold bigint,
     orthologs_above_threshold bigint,
-    mouse_to_human_category character varying(255)
+    category_for_threshold character varying(255)
 );
 
 
@@ -493,7 +493,7 @@ CREATE TABLE public.human_mapping_filter (
     human_gene_id bigint,
     support_count_threshold bigint,
     orthologs_above_threshold bigint,
-    human_to_mouse_category character varying(255)
+    category_for_threshold character varying(255)
 );
 
 
