@@ -861,9 +861,11 @@ hdb_catalog	hdb_allowlist	t
 public	hgnc_gene	f
 public	ortholog	f
 public	human_gene	f
+public	human_mapping_filter	f
 public	human_gene_synonym	f
 public	human_gene_synonym_relation	f
 public	mouse_gene	f
+public	mouse_mapping_filter	f
 public	mouse_gene_synonym	f
 public	mouse_gene_synonym_relation	f
 \.
