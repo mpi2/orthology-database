@@ -720,13 +720,17 @@ public	ortholog	human_gene	object	{"foreign_key_constraint_on": "human_gene_id"}
 public	mouse_gene_synonym	mouse_gene_synonym_relations	array	{"foreign_key_constraint_on": {"table": "mouse_gene_synonym_relation", "column": "mouse_gene_synonym_id"}}	\N	f
 public	mouse_gene	mouse_gene_synonym_relations	array	{"foreign_key_constraint_on": {"table": "mouse_gene_synonym_relation", "column": "mouse_gene_id"}}	\N	f
 public	mouse_gene	orthologs	array	{"foreign_key_constraint_on": {"table": "ortholog", "column": "mouse_gene_id"}}	\N	f
+public	mouse_gene	mouse_mapping_filters	array	{"foreign_key_constraint_on": {"table": "mouse_mapping_filter", "column": "mouse_gene_id"}}	\N	f
+public	mouse_mapping_filter	mouse_gene	object	{"foreign_key_constraint_on": "mouse_gene_id"}	\N	f
 public	human_gene_synonym_relation	human_gene_synonym	object	{"foreign_key_constraint_on": "human_gene_synonym_id"}	\N	f
 public	human_gene_synonym_relation	human_gene	object	{"foreign_key_constraint_on": "human_gene_id"}	\N	f
 public	human_gene_synonym	human_gene_synonym_relations	array	{"foreign_key_constraint_on": {"table": "human_gene_synonym_relation", "column": "human_gene_synonym_id"}}	\N	f
 public	human_gene	hgnc_genes	array	{"foreign_key_constraint_on": {"table": "hgnc_gene", "column": "human_gene_id"}}	\N	f
 public	human_gene	human_gene_synonym_relations	array	{"foreign_key_constraint_on": {"table": "human_gene_synonym_relation", "column": "human_gene_id"}}	\N	f
 public	human_gene	orthologs	array	{"foreign_key_constraint_on": {"table": "ortholog", "column": "human_gene_id"}}	\N	f
+public	human_gene	human_mapping_filters	array	{"foreign_key_constraint_on": {"table": "human_mapping_filter", "column": "human_gene_id"}}	\N	f
 public	hgnc_gene	human_gene	object	{"foreign_key_constraint_on": "human_gene_id"}	\N	f
+public	human_mapping_filter	human_gene	object	{"foreign_key_constraint_on": "human_gene_id"}	\N	f
 \.
 
 
@@ -859,9 +863,11 @@ hdb_catalog	hdb_allowlist	t
 public	hgnc_gene	f
 public	ortholog	f
 public	human_gene	f
+public	human_mapping_filter	f
 public	human_gene_synonym	f
 public	human_gene_synonym_relation	f
 public	mouse_gene	f
+public	mouse_mapping_filter	f
 public	mouse_gene_synonym	f
 public	mouse_gene_synonym_relation	f
 \.
