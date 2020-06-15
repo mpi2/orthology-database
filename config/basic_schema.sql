@@ -1040,6 +1040,15 @@ GRANT SELECT ON ALL TABLES IN SCHEMA pg_catalog TO hasurauser;
 -- For example, if you only want to use GraphQL regular queries and not mutations,
 -- then you can set: GRANT SELECT ON ALL TABLES...
 
+REVOKE ALL ON SCHEMA public FROM hasurauser;
+
+REVOKE CREATE ON SCHEMA public FROM orthology_admin;
+REVOKE CREATE ON SCHEMA public FROM hasurauser;
+
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO hasurauser;
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO hasurauser;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO hasurauser;
+
 
 REVOKE ALL ON SCHEMA orthology FROM hasurauser;
 
