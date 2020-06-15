@@ -713,20 +713,20 @@ hdb_catalog	event_triggers	events	array	{"manual_configuration": {"remote_table"
 hdb_catalog	event_invocation_logs	event	object	{"foreign_key_constraint_on": "event_id"}	\N	t
 hdb_catalog	event_log	logs	array	{"foreign_key_constraint_on": {"table": {"name": "event_invocation_logs", "schema": "hdb_catalog"}, "column": "event_id"}}	\N	t
 hdb_catalog	hdb_function_agg	return_table_info	object	{"manual_configuration": {"remote_table": {"name": "hdb_table", "schema": "hdb_catalog"}, "column_mapping": {"return_type_name": "table_name", "return_type_schema": "table_schema"}}}	\N	t
-public	mouse_gene_synonym_relation	mouse_gene_synonym	object	{"foreign_key_constraint_on": "mouse_gene_synonym_id"}	\N	f
-public	mouse_gene_synonym_relation	mouse_gene	object	{"foreign_key_constraint_on": "mouse_gene_id"}	\N	f
-public	ortholog	mouse_gene	object	{"foreign_key_constraint_on": "mouse_gene_id"}	\N	f
-public	ortholog	human_gene	object	{"foreign_key_constraint_on": "human_gene_id"}	\N	f
-public	mouse_gene_synonym	mouse_gene_synonym_relations	array	{"foreign_key_constraint_on": {"table": "mouse_gene_synonym_relation", "column": "mouse_gene_synonym_id"}}	\N	f
-public	mouse_gene	mouse_gene_synonym_relations	array	{"foreign_key_constraint_on": {"table": "mouse_gene_synonym_relation", "column": "mouse_gene_id"}}	\N	f
-public	mouse_gene	orthologs	array	{"foreign_key_constraint_on": {"table": "ortholog", "column": "mouse_gene_id"}}	\N	f
-public	human_gene_synonym_relation	human_gene_synonym	object	{"foreign_key_constraint_on": "human_gene_synonym_id"}	\N	f
-public	human_gene_synonym_relation	human_gene	object	{"foreign_key_constraint_on": "human_gene_id"}	\N	f
-public	human_gene_synonym	human_gene_synonym_relations	array	{"foreign_key_constraint_on": {"table": "human_gene_synonym_relation", "column": "human_gene_synonym_id"}}	\N	f
-public	human_gene	hgnc_genes	array	{"foreign_key_constraint_on": {"table": "hgnc_gene", "column": "human_gene_id"}}	\N	f
-public	human_gene	human_gene_synonym_relations	array	{"foreign_key_constraint_on": {"table": "human_gene_synonym_relation", "column": "human_gene_id"}}	\N	f
-public	human_gene	orthologs	array	{"foreign_key_constraint_on": {"table": "ortholog", "column": "human_gene_id"}}	\N	f
-public	hgnc_gene	human_gene	object	{"foreign_key_constraint_on": "human_gene_id"}	\N	f
+orthology	mouse_gene_synonym_relation	mouse_gene_synonym	object	{"foreign_key_constraint_on": "mouse_gene_synonym_id"}	\N	f
+orthology	mouse_gene_synonym_relation	mouse_gene	object	{"foreign_key_constraint_on": "mouse_gene_id"}	\N	f
+orthology	ortholog	mouse_gene	object	{"foreign_key_constraint_on": "mouse_gene_id"}	\N	f
+orthology	ortholog	human_gene	object	{"foreign_key_constraint_on": "human_gene_id"}	\N	f
+orthology	mouse_gene_synonym	mouse_gene_synonym_relations	array	{"foreign_key_constraint_on": {"table": {"name": "mouse_gene_synonym_relation", "schema": "orthology"}, "column": "mouse_gene_synonym_id"}}	\N	f
+orthology	mouse_gene	mouse_gene_synonym_relations	array	{"foreign_key_constraint_on": {"table": {"name": "mouse_gene_synonym_relation", "schema": "orthology"}, "column": "mouse_gene_id"}}	\N	f
+orthology	mouse_gene	orthologs	array	{"foreign_key_constraint_on": {"table": {"name": "ortholog", "schema": "orthology"}, "column": "mouse_gene_id"}}	\N	f
+orthology	human_gene_synonym_relation	human_gene_synonym	object	{"foreign_key_constraint_on": "human_gene_synonym_id"}	\N	f
+orthology	human_gene_synonym_relation	human_gene	object	{"foreign_key_constraint_on": "human_gene_id"}	\N	f
+orthology	human_gene_synonym	human_gene_synonym_relations	array	{"foreign_key_constraint_on": {"table": {"name": "human_gene_synonym_relation", "schema": "orthology"}, "column": "human_gene_synonym_id"}}	\N	f
+orthology	human_gene	hgnc_genes	array	{"foreign_key_constraint_on": {"table": {"name": "hgnc_gene", "schema": "orthology"}, "column": "human_gene_id"}}	\N	f
+orthology	human_gene	human_gene_synonym_relations	array	{"foreign_key_constraint_on": {"table": {"name": "human_gene_synonym_relation", "schema": "orthology"}, "column": "human_gene_id"}}	\N	f
+orthology	human_gene	orthologs	array	{"foreign_key_constraint_on": {"table": {"name": "ortholog", "schema": "orthology"}, "column": "human_gene_id"}}	\N	f
+orthology	hgnc_gene	human_gene	object	{"foreign_key_constraint_on": "human_gene_id"}	\N	f
 \.
 
 
@@ -856,14 +856,14 @@ hdb_catalog	remote_schemas	t
 hdb_catalog	hdb_version	t
 hdb_catalog	hdb_query_collection	t
 hdb_catalog	hdb_allowlist	t
-public	hgnc_gene	f
-public	ortholog	f
-public	human_gene	f
-public	human_gene_synonym	f
-public	human_gene_synonym_relation	f
-public	mouse_gene	f
-public	mouse_gene_synonym	f
-public	mouse_gene_synonym_relation	f
+orthology	hgnc_gene	f
+orthology	ortholog	f
+orthology	human_gene	f
+orthology	human_gene_synonym	f
+orthology	human_gene_synonym_relation	f
+orthology	mouse_gene	f
+orthology	mouse_gene_synonym	f
+orthology	mouse_gene_synonym_relation	f
 \.
 
 

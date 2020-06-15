@@ -20,13 +20,23 @@ SET default_tablespace = '';
 
 SET default_with_oids = false;
 
-GRANT ALL ON schema public TO orthology_admin;
-
 --
--- Name: hgnc_gene; Type: TABLE; Schema: public; Owner: orthology_admin
+-- Name: orthology; Type: SCHEMA; Schema: -; Owner: orthology_admin
 --
 
-CREATE TABLE public.hgnc_gene (
+CREATE SCHEMA IF NOT EXISTS orthology;
+
+
+ALTER SCHEMA orthology OWNER TO orthology_admin;
+
+
+GRANT ALL ON schema orthology TO orthology_admin;
+
+--
+-- Name: hgnc_gene; Type: TABLE; Schema: orthology; Owner: orthology_admin
+--
+
+CREATE TABLE orthology.hgnc_gene (
     id bigint NOT NULL,
     human_gene_id bigint,
     agr_acc_id character varying(255),
@@ -84,13 +94,13 @@ CREATE TABLE public.hgnc_gene (
 );
 
 
-ALTER TABLE public.hgnc_gene OWNER TO orthology_admin;
+ALTER TABLE orthology.hgnc_gene OWNER TO orthology_admin;
 
 --
--- Name: hgnc_gene_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+-- Name: hgnc_gene_id_seq; Type: SEQUENCE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE SEQUENCE public.hgnc_gene_id_seq
+CREATE SEQUENCE orthology.hgnc_gene_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -98,21 +108,21 @@ CREATE SEQUENCE public.hgnc_gene_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.hgnc_gene_id_seq OWNER TO orthology_admin;
+ALTER TABLE orthology.hgnc_gene_id_seq OWNER TO orthology_admin;
 
 --
--- Name: hgnc_gene_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+-- Name: hgnc_gene_id_seq; Type: SEQUENCE OWNED BY; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER SEQUENCE public.hgnc_gene_id_seq OWNED BY public.hgnc_gene.id;
+ALTER SEQUENCE orthology.hgnc_gene_id_seq OWNED BY orthology.hgnc_gene.id;
 
 --
--- Name: hcop_tmp; Type: TABLE; Schema: public; Owner: orthology_admin
+-- Name: hcop_tmp; Type: TABLE; Schema: orthology; Owner: orthology_admin
 --
 
 
 
-CREATE TABLE public.hcop_tmp (
+CREATE TABLE orthology.hcop_tmp (
     id bigint NOT NULL,
     hgnc_acc_id character varying(255),
     human_assert_acc_ids text,
@@ -132,14 +142,14 @@ CREATE TABLE public.hcop_tmp (
 );
 
 
-ALTER TABLE public.hcop_tmp OWNER TO orthology_admin;
+ALTER TABLE orthology.hcop_tmp OWNER TO orthology_admin;
 
 
 --
--- Name: hcop_tmp_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+-- Name: hcop_tmp_id_seq; Type: SEQUENCE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE SEQUENCE public.hcop_tmp_id_seq
+CREATE SEQUENCE orthology.hcop_tmp_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -147,20 +157,20 @@ CREATE SEQUENCE public.hcop_tmp_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.hcop_tmp_id_seq OWNER TO orthology_admin;
+ALTER TABLE orthology.hcop_tmp_id_seq OWNER TO orthology_admin;
 
 --
--- Name: hcop_tmp_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+-- Name: hcop_tmp_id_seq; Type: SEQUENCE OWNED BY; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER SEQUENCE public.hcop_tmp_id_seq OWNED BY public.hcop_tmp.id;
+ALTER SEQUENCE orthology.hcop_tmp_id_seq OWNED BY orthology.hcop_tmp.id;
 
 
 --
--- Name: hcop; Type: TABLE; Schema: public; Owner: orthology_admin
+-- Name: hcop; Type: TABLE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE TABLE public.hcop (
+CREATE TABLE orthology.hcop (
     id bigint NOT NULL,
     mouse_gene_id bigint,
     human_gene_id bigint,
@@ -182,13 +192,13 @@ CREATE TABLE public.hcop (
 );
 
 
-ALTER TABLE public.hcop OWNER TO orthology_admin;
+ALTER TABLE orthology.hcop OWNER TO orthology_admin;
 
 --
--- Name: hcop_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+-- Name: hcop_id_seq; Type: SEQUENCE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE SEQUENCE public.hcop_id_seq
+CREATE SEQUENCE orthology.hcop_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -196,21 +206,21 @@ CREATE SEQUENCE public.hcop_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.hcop_id_seq OWNER TO orthology_admin;
+ALTER TABLE orthology.hcop_id_seq OWNER TO orthology_admin;
 
 --
--- Name: hcop_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+-- Name: hcop_id_seq; Type: SEQUENCE OWNED BY; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER SEQUENCE public.hcop_id_seq OWNED BY public.hcop.id;
+ALTER SEQUENCE orthology.hcop_id_seq OWNED BY orthology.hcop.id;
 
 
 
 --
--- Name: mgi_gene; Type: TABLE; Schema: public; Owner: orthology_admin
+-- Name: mgi_gene; Type: TABLE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE TABLE public.mgi_gene (
+CREATE TABLE orthology.mgi_gene (
     id bigint NOT NULL,
     ensembl_chromosome character varying(255),
     ensembl_gene_acc_id character varying(255),
@@ -230,13 +240,13 @@ CREATE TABLE public.mgi_gene (
 );
 
 
-ALTER TABLE public.mgi_gene OWNER TO orthology_admin;
+ALTER TABLE orthology.mgi_gene OWNER TO orthology_admin;
 
 --
--- Name: mgi_gene_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+-- Name: mgi_gene_id_seq; Type: SEQUENCE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE SEQUENCE public.mgi_gene_id_seq
+CREATE SEQUENCE orthology.mgi_gene_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -244,20 +254,20 @@ CREATE SEQUENCE public.mgi_gene_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.mgi_gene_id_seq OWNER TO orthology_admin;
+ALTER TABLE orthology.mgi_gene_id_seq OWNER TO orthology_admin;
 
 --
--- Name: mgi_gene_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+-- Name: mgi_gene_id_seq; Type: SEQUENCE OWNED BY; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER SEQUENCE public.mgi_gene_id_seq OWNED BY public.mgi_gene.id;
+ALTER SEQUENCE orthology.mgi_gene_id_seq OWNED BY orthology.mgi_gene.id;
 
 
 --
--- Name: mgi_mrk_list2; Type: TABLE; Schema: public; Owner: orthology_admin
+-- Name: mgi_mrk_list2; Type: TABLE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE TABLE public.mgi_mrk_list2 (
+CREATE TABLE orthology.mgi_mrk_list2 (
     id bigint NOT NULL,
     cm character varying(255),
     chr character varying(255),
@@ -274,13 +284,13 @@ CREATE TABLE public.mgi_mrk_list2 (
 );
 
 
-ALTER TABLE public.mgi_mrk_list2 OWNER TO orthology_admin;
+ALTER TABLE orthology.mgi_mrk_list2 OWNER TO orthology_admin;
 
 --
--- Name: mgi_mrk_list2_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+-- Name: mgi_mrk_list2_id_seq; Type: SEQUENCE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE SEQUENCE public.mgi_mrk_list2_id_seq
+CREATE SEQUENCE orthology.mgi_mrk_list2_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -288,21 +298,21 @@ CREATE SEQUENCE public.mgi_mrk_list2_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.mgi_mrk_list2_id_seq OWNER TO orthology_admin;
+ALTER TABLE orthology.mgi_mrk_list2_id_seq OWNER TO orthology_admin;
 
 --
--- Name: mgi_mrk_list2_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+-- Name: mgi_mrk_list2_id_seq; Type: SEQUENCE OWNED BY; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER SEQUENCE public.mgi_mrk_list2_id_seq OWNED BY public.mgi_mrk_list2.id;
+ALTER SEQUENCE orthology.mgi_mrk_list2_id_seq OWNED BY orthology.mgi_mrk_list2.id;
 
 
 
 --
--- Name: mouse_gene; Type: TABLE; Schema: public; Owner: orthology_admin
+-- Name: mouse_gene; Type: TABLE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE TABLE public.mouse_gene (
+CREATE TABLE orthology.mouse_gene (
     id bigint NOT NULL,
     ensembl_chromosome character varying(255),
     ensembl_gene_acc_id character varying(255),
@@ -328,13 +338,13 @@ CREATE TABLE public.mouse_gene (
 );
 
 
-ALTER TABLE public.mouse_gene OWNER TO orthology_admin;
+ALTER TABLE orthology.mouse_gene OWNER TO orthology_admin;
 
 --
--- Name: mouse_gene_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+-- Name: mouse_gene_id_seq; Type: SEQUENCE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE SEQUENCE public.mouse_gene_id_seq
+CREATE SEQUENCE orthology.mouse_gene_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -342,33 +352,33 @@ CREATE SEQUENCE public.mouse_gene_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.mouse_gene_id_seq OWNER TO orthology_admin;
+ALTER TABLE orthology.mouse_gene_id_seq OWNER TO orthology_admin;
 
 --
--- Name: mouse_gene_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+-- Name: mouse_gene_id_seq; Type: SEQUENCE OWNED BY; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER SEQUENCE public.mouse_gene_id_seq OWNED BY public.mouse_gene.id;
+ALTER SEQUENCE orthology.mouse_gene_id_seq OWNED BY orthology.mouse_gene.id;
 
 
 --
--- Name: mouse_gene_synonym; Type: TABLE; Schema: public; Owner: orthology_admin
+-- Name: mouse_gene_synonym; Type: TABLE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE TABLE public.mouse_gene_synonym (
+CREATE TABLE orthology.mouse_gene_synonym (
     id bigint NOT NULL,
     mgi_gene_acc_id character varying(255),
     synonym character varying(255)
 );
 
 
-ALTER TABLE public.mouse_gene_synonym OWNER TO orthology_admin;
+ALTER TABLE orthology.mouse_gene_synonym OWNER TO orthology_admin;
 
 --
--- Name: mouse_gene_synonym_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+-- Name: mouse_gene_synonym_id_seq; Type: SEQUENCE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE SEQUENCE public.mouse_gene_synonym_id_seq
+CREATE SEQUENCE orthology.mouse_gene_synonym_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -376,35 +386,35 @@ CREATE SEQUENCE public.mouse_gene_synonym_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.mouse_gene_synonym_id_seq OWNER TO orthology_admin;
+ALTER TABLE orthology.mouse_gene_synonym_id_seq OWNER TO orthology_admin;
 
 --
--- Name: mouse_gene_synonym_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+-- Name: mouse_gene_synonym_id_seq; Type: SEQUENCE OWNED BY; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER SEQUENCE public.mouse_gene_synonym_id_seq OWNED BY public.mouse_gene_synonym.id;
+ALTER SEQUENCE orthology.mouse_gene_synonym_id_seq OWNED BY orthology.mouse_gene_synonym.id;
 
 
 --
--- Name: mouse_gene_synonym_relation; Type: TABLE; Schema: public; Owner: orthology_admin
+-- Name: mouse_gene_synonym_relation; Type: TABLE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE TABLE public.mouse_gene_synonym_relation (
+CREATE TABLE orthology.mouse_gene_synonym_relation (
     mouse_gene_id bigint NOT NULL,
     mouse_gene_synonym_id bigint NOT NULL
 );
 
 
-ALTER TABLE public.mouse_gene_synonym_relation OWNER TO orthology_admin;
+ALTER TABLE orthology.mouse_gene_synonym_relation OWNER TO orthology_admin;
 
 
 
 
 --
--- Name: mouse_mapping_filter; Type: TABLE; Schema: public; Owner: orthology_admin
+-- Name: mouse_mapping_filter; Type: TABLE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE TABLE public.mouse_mapping_filter (
+CREATE TABLE orthology.mouse_mapping_filter (
     id bigint NOT NULL,
     mouse_gene_id bigint,
     support_count_threshold bigint,
@@ -413,13 +423,13 @@ CREATE TABLE public.mouse_mapping_filter (
 );
 
 
-ALTER TABLE public.mouse_mapping_filter OWNER TO orthology_admin;
+ALTER TABLE orthology.mouse_mapping_filter OWNER TO orthology_admin;
 
 --
--- Name: mouse_mapping_filter_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+-- Name: mouse_mapping_filter_id_seq; Type: SEQUENCE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE SEQUENCE public.mouse_mapping_filter_id_seq
+CREATE SEQUENCE orthology.mouse_mapping_filter_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -427,13 +437,13 @@ CREATE SEQUENCE public.mouse_mapping_filter_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.mouse_mapping_filter_id_seq OWNER TO orthology_admin;
+ALTER TABLE orthology.mouse_mapping_filter_id_seq OWNER TO orthology_admin;
 
 --
--- Name: mouse_mapping_filter_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+-- Name: mouse_mapping_filter_id_seq; Type: SEQUENCE OWNED BY; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER SEQUENCE public.mouse_mapping_filter_id_seq OWNED BY public.mouse_mapping_filter.id;
+ALTER SEQUENCE orthology.mouse_mapping_filter_id_seq OWNED BY orthology.mouse_mapping_filter.id;
 
 
 
@@ -446,10 +456,10 @@ ALTER SEQUENCE public.mouse_mapping_filter_id_seq OWNED BY public.mouse_mapping_
 
 
 --
--- Name: human_gene; Type: TABLE; Schema: public; Owner: orthology_admin
+-- Name: human_gene; Type: TABLE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE TABLE public.human_gene (
+CREATE TABLE orthology.human_gene (
     id bigint NOT NULL,
     hgnc_acc_id character varying(255) NOT NULL,
     name character varying(255) NOT NULL,
@@ -459,13 +469,13 @@ CREATE TABLE public.human_gene (
 );
 
 
-ALTER TABLE public.human_gene OWNER TO orthology_admin;
+ALTER TABLE orthology.human_gene OWNER TO orthology_admin;
 
 --
--- Name: human_gene_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+-- Name: human_gene_id_seq; Type: SEQUENCE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE SEQUENCE public.human_gene_id_seq
+CREATE SEQUENCE orthology.human_gene_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -473,22 +483,22 @@ CREATE SEQUENCE public.human_gene_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.human_gene_id_seq OWNER TO orthology_admin;
+ALTER TABLE orthology.human_gene_id_seq OWNER TO orthology_admin;
 
 --
--- Name: human_gene_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+-- Name: human_gene_id_seq; Type: SEQUENCE OWNED BY; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER SEQUENCE public.human_gene_id_seq OWNED BY public.human_gene.id;
+ALTER SEQUENCE orthology.human_gene_id_seq OWNED BY orthology.human_gene.id;
 
 
 
 
 --
--- Name: human_mapping_filter; Type: TABLE; Schema: public; Owner: orthology_admin
+-- Name: human_mapping_filter; Type: TABLE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE TABLE public.human_mapping_filter (
+CREATE TABLE orthology.human_mapping_filter (
     id bigint NOT NULL,
     human_gene_id bigint,
     support_count_threshold bigint,
@@ -497,13 +507,13 @@ CREATE TABLE public.human_mapping_filter (
 );
 
 
-ALTER TABLE public.human_mapping_filter OWNER TO orthology_admin;
+ALTER TABLE orthology.human_mapping_filter OWNER TO orthology_admin;
 
 --
--- Name: human_mapping_filter_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+-- Name: human_mapping_filter_id_seq; Type: SEQUENCE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE SEQUENCE public.human_mapping_filter_id_seq
+CREATE SEQUENCE orthology.human_mapping_filter_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -511,34 +521,34 @@ CREATE SEQUENCE public.human_mapping_filter_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.human_mapping_filter_id_seq OWNER TO orthology_admin;
+ALTER TABLE orthology.human_mapping_filter_id_seq OWNER TO orthology_admin;
 
 --
--- Name: human_mapping_filter_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+-- Name: human_mapping_filter_id_seq; Type: SEQUENCE OWNED BY; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER SEQUENCE public.human_mapping_filter_id_seq OWNED BY public.human_mapping_filter.id;
+ALTER SEQUENCE orthology.human_mapping_filter_id_seq OWNED BY orthology.human_mapping_filter.id;
 
 
 
 --
--- Name: human_gene_synonym; Type: TABLE; Schema: public; Owner: orthology_admin
+-- Name: human_gene_synonym; Type: TABLE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE TABLE public.human_gene_synonym (
+CREATE TABLE orthology.human_gene_synonym (
     id bigint NOT NULL,
     hgnc_acc_id character varying(255),
     synonym character varying(255)
 );
 
 
-ALTER TABLE public.human_gene_synonym OWNER TO orthology_admin;
+ALTER TABLE orthology.human_gene_synonym OWNER TO orthology_admin;
 
 --
--- Name: human_gene_synonym_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+-- Name: human_gene_synonym_id_seq; Type: SEQUENCE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE SEQUENCE public.human_gene_synonym_id_seq
+CREATE SEQUENCE orthology.human_gene_synonym_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -546,32 +556,32 @@ CREATE SEQUENCE public.human_gene_synonym_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.human_gene_synonym_id_seq OWNER TO orthology_admin;
+ALTER TABLE orthology.human_gene_synonym_id_seq OWNER TO orthology_admin;
 
 --
--- Name: human_gene_synonym_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+-- Name: human_gene_synonym_id_seq; Type: SEQUENCE OWNED BY; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER SEQUENCE public.human_gene_synonym_id_seq OWNED BY public.human_gene_synonym.id;
+ALTER SEQUENCE orthology.human_gene_synonym_id_seq OWNED BY orthology.human_gene_synonym.id;
 
 
 --
--- Name: human_gene_synonym_relation; Type: TABLE; Schema: public; Owner: orthology_admin
+-- Name: human_gene_synonym_relation; Type: TABLE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE TABLE public.human_gene_synonym_relation (
+CREATE TABLE orthology.human_gene_synonym_relation (
     human_gene_id bigint NOT NULL,
     human_gene_synonym_id bigint NOT NULL
 );
 
 
-ALTER TABLE public.human_gene_synonym_relation OWNER TO orthology_admin;
+ALTER TABLE orthology.human_gene_synonym_relation OWNER TO orthology_admin;
 
 --
--- Name: ortholog; Type: TABLE; Schema: public; Owner: orthology_admin
+-- Name: ortholog; Type: TABLE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE TABLE public.ortholog (
+CREATE TABLE orthology.ortholog (
     id bigint NOT NULL,
     support character varying(255) NOT NULL,
     support_raw text NOT NULL,
@@ -584,14 +594,14 @@ CREATE TABLE public.ortholog (
 );
 
 
-ALTER TABLE public.ortholog OWNER TO orthology_admin;
+ALTER TABLE orthology.ortholog OWNER TO orthology_admin;
 
 
 --
--- Name: ortholog_id_seq; Type: SEQUENCE; Schema: public; Owner: orthology_admin
+-- Name: ortholog_id_seq; Type: SEQUENCE; Schema: orthology; Owner: orthology_admin
 --
 
-CREATE SEQUENCE public.ortholog_id_seq
+CREATE SEQUENCE orthology.ortholog_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -599,167 +609,167 @@ CREATE SEQUENCE public.ortholog_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.ortholog_id_seq OWNER TO orthology_admin;
+ALTER TABLE orthology.ortholog_id_seq OWNER TO orthology_admin;
 
 --
--- Name: ortholog_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: orthology_admin
+-- Name: ortholog_id_seq; Type: SEQUENCE OWNED BY; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER SEQUENCE public.ortholog_id_seq OWNED BY public.ortholog.id;
+ALTER SEQUENCE orthology.ortholog_id_seq OWNED BY orthology.ortholog.id;
 
 
 
 
-
-
-
-
-
---
--- Name: hcop_tmp id; Type: DEFAULT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.hcop_tmp ALTER COLUMN id SET DEFAULT nextval('public.hcop_tmp_id_seq'::regclass);
-
-
---
--- Name: hcop id; Type: DEFAULT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.hcop ALTER COLUMN id SET DEFAULT nextval('public.hcop_id_seq'::regclass);
-
-
-
-
---
--- Name: hgnc_gene id; Type: DEFAULT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.hgnc_gene ALTER COLUMN id SET DEFAULT nextval('public.hgnc_gene_id_seq'::regclass);
---
--- Name: human_gene id; Type: DEFAULT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.human_gene ALTER COLUMN id SET DEFAULT nextval('public.human_gene_id_seq'::regclass);
-
-
---
--- Name: human_mapping_filter id; Type: DEFAULT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.human_mapping_filter ALTER COLUMN id SET DEFAULT nextval('public.human_mapping_filter_id_seq'::regclass);
-
-
---
--- Name: human_gene_synonym id; Type: DEFAULT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.human_gene_synonym ALTER COLUMN id SET DEFAULT nextval('public.human_gene_synonym_id_seq'::regclass);
-
-
-
---
--- Name: mgi_gene id; Type: DEFAULT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.mgi_gene ALTER COLUMN id SET DEFAULT nextval('public.mgi_gene_id_seq'::regclass);
-
-
---
--- Name: mgi_mrk_list2 id; Type: DEFAULT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.mgi_mrk_list2 ALTER COLUMN id SET DEFAULT nextval('public.mgi_mrk_list2_id_seq'::regclass);
-
-
---
--- Name: mouse_gene id; Type: DEFAULT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.mouse_gene ALTER COLUMN id SET DEFAULT nextval('public.mouse_gene_id_seq'::regclass);
-
-
---
--- Name: mouse_gene_synonym id; Type: DEFAULT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.mouse_gene_synonym ALTER COLUMN id SET DEFAULT nextval('public.mouse_gene_synonym_id_seq'::regclass);
-
-
---
--- Name: mouse_mapping_filter id; Type: DEFAULT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.mouse_mapping_filter ALTER COLUMN id SET DEFAULT nextval('public.mouse_mapping_filter_id_seq'::regclass);
-
-
-
---
--- Name: ortholog id; Type: DEFAULT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.ortholog ALTER COLUMN id SET DEFAULT nextval('public.ortholog_id_seq'::regclass);
 
 
 
 
 
 --
--- Name: hcop_tmp hcop_tmp_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: hcop_tmp id; Type: DEFAULT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.hcop_tmp
+ALTER TABLE ONLY orthology.hcop_tmp ALTER COLUMN id SET DEFAULT nextval('orthology.hcop_tmp_id_seq'::regclass);
+
+
+--
+-- Name: hcop id; Type: DEFAULT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.hcop ALTER COLUMN id SET DEFAULT nextval('orthology.hcop_id_seq'::regclass);
+
+
+
+
+--
+-- Name: hgnc_gene id; Type: DEFAULT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.hgnc_gene ALTER COLUMN id SET DEFAULT nextval('orthology.hgnc_gene_id_seq'::regclass);
+--
+-- Name: human_gene id; Type: DEFAULT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.human_gene ALTER COLUMN id SET DEFAULT nextval('orthology.human_gene_id_seq'::regclass);
+
+
+--
+-- Name: human_mapping_filter id; Type: DEFAULT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.human_mapping_filter ALTER COLUMN id SET DEFAULT nextval('orthology.human_mapping_filter_id_seq'::regclass);
+
+
+--
+-- Name: human_gene_synonym id; Type: DEFAULT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.human_gene_synonym ALTER COLUMN id SET DEFAULT nextval('orthology.human_gene_synonym_id_seq'::regclass);
+
+
+
+--
+-- Name: mgi_gene id; Type: DEFAULT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.mgi_gene ALTER COLUMN id SET DEFAULT nextval('orthology.mgi_gene_id_seq'::regclass);
+
+
+--
+-- Name: mgi_mrk_list2 id; Type: DEFAULT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.mgi_mrk_list2 ALTER COLUMN id SET DEFAULT nextval('orthology.mgi_mrk_list2_id_seq'::regclass);
+
+
+--
+-- Name: mouse_gene id; Type: DEFAULT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.mouse_gene ALTER COLUMN id SET DEFAULT nextval('orthology.mouse_gene_id_seq'::regclass);
+
+
+--
+-- Name: mouse_gene_synonym id; Type: DEFAULT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.mouse_gene_synonym ALTER COLUMN id SET DEFAULT nextval('orthology.mouse_gene_synonym_id_seq'::regclass);
+
+
+--
+-- Name: mouse_mapping_filter id; Type: DEFAULT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.mouse_mapping_filter ALTER COLUMN id SET DEFAULT nextval('orthology.mouse_mapping_filter_id_seq'::regclass);
+
+
+
+--
+-- Name: ortholog id; Type: DEFAULT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.ortholog ALTER COLUMN id SET DEFAULT nextval('orthology.ortholog_id_seq'::regclass);
+
+
+
+
+
+--
+-- Name: hcop_tmp hcop_tmp_pkey; Type: CONSTRAINT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.hcop_tmp
     ADD CONSTRAINT hcop_tmp_pkey PRIMARY KEY (id);
 
 
 --
--- Name: hcop hcop_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: hcop hcop_pkey; Type: CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.hcop
+ALTER TABLE ONLY orthology.hcop
     ADD CONSTRAINT hcop_pkey PRIMARY KEY (id);
 
 
 
 
 --
--- Name: hgnc_gene hgnc_gene_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: hgnc_gene hgnc_gene_pkey; Type: CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.hgnc_gene
+ALTER TABLE ONLY orthology.hgnc_gene
     ADD CONSTRAINT hgnc_gene_pkey PRIMARY KEY (id);
 
 
 
 --
--- Name: human_gene human_gene_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: human_gene human_gene_pkey; Type: CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.human_gene
+ALTER TABLE ONLY orthology.human_gene
     ADD CONSTRAINT human_gene_pkey PRIMARY KEY (id);
 
 
 --
--- Name: human_mapping_filter human_mapping_filter_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: human_mapping_filter human_mapping_filter_pkey; Type: CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.human_mapping_filter
+ALTER TABLE ONLY orthology.human_mapping_filter
     ADD CONSTRAINT human_mapping_filter_pkey PRIMARY KEY (id);
 
 
 --
--- Name: human_gene_synonym human_gene_synonym_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: human_gene_synonym human_gene_synonym_pkey; Type: CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.human_gene_synonym
+ALTER TABLE ONLY orthology.human_gene_synonym
     ADD CONSTRAINT human_gene_synonym_pkey PRIMARY KEY (id);
 
 
 --
--- Name: human_gene_synonym_relation human_gene_synonym_relation_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: human_gene_synonym_relation human_gene_synonym_relation_pkey; Type: CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.human_gene_synonym_relation
+ALTER TABLE ONLY orthology.human_gene_synonym_relation
     ADD CONSTRAINT human_gene_synonym_relation_pkey PRIMARY KEY (human_gene_id, human_gene_synonym_id);
 
 
@@ -767,61 +777,61 @@ ALTER TABLE ONLY public.human_gene_synonym_relation
 
 
 --
--- Name: mgi_gene mgi_gene_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: mgi_gene mgi_gene_pkey; Type: CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.mgi_gene
+ALTER TABLE ONLY orthology.mgi_gene
     ADD CONSTRAINT mgi_gene_pkey PRIMARY KEY (id);
 
 
 --
--- Name: mgi_mrk_list2 mgi_mrk_list2_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: mgi_mrk_list2 mgi_mrk_list2_pkey; Type: CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.mgi_mrk_list2
+ALTER TABLE ONLY orthology.mgi_mrk_list2
     ADD CONSTRAINT mgi_mrk_list2_pkey PRIMARY KEY (id);
 
 
 
 --
--- Name: mouse_gene mouse_gene_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: mouse_gene mouse_gene_pkey; Type: CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.mouse_gene
+ALTER TABLE ONLY orthology.mouse_gene
     ADD CONSTRAINT mouse_gene_pkey PRIMARY KEY (id);
 
 
 --
--- Name: mouse_mapping_filter mouse_mapping_filter_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: mouse_mapping_filter mouse_mapping_filter_pkey; Type: CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.mouse_mapping_filter
+ALTER TABLE ONLY orthology.mouse_mapping_filter
     ADD CONSTRAINT mouse_mapping_filter_pkey PRIMARY KEY (id);
 
 
 --
--- Name: mouse_gene_synonym mouse_gene_synonym_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: mouse_gene_synonym mouse_gene_synonym_pkey; Type: CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.mouse_gene_synonym
+ALTER TABLE ONLY orthology.mouse_gene_synonym
     ADD CONSTRAINT mouse_gene_synonym_pkey PRIMARY KEY (id);
 
 
 --
--- Name: mouse_gene_synonym_relation mouse_gene_synonym_relation_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: mouse_gene_synonym_relation mouse_gene_synonym_relation_pkey; Type: CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.mouse_gene_synonym_relation
+ALTER TABLE ONLY orthology.mouse_gene_synonym_relation
     ADD CONSTRAINT mouse_gene_synonym_relation_pkey PRIMARY KEY (mouse_gene_id, mouse_gene_synonym_id);
 
 
 
 
 --
--- Name: ortholog ortholog_pkey; Type: CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: ortholog ortholog_pkey; Type: CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.ortholog
+ALTER TABLE ONLY orthology.ortholog
     ADD CONSTRAINT ortholog_pkey PRIMARY KEY (id);
 
 
@@ -831,108 +841,108 @@ ALTER TABLE ONLY public.ortholog
 
 
 --
--- Name: human_gene fk194i1het18j033e8a67r40g1; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: human_gene fk194i1het18j033e8a67r40g1; Type: FK CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.hgnc_gene
-    ADD CONSTRAINT fk194i1het18j033e8a67r40g1 FOREIGN KEY (human_gene_id) REFERENCES public.human_gene(id);
-
-
-
---
--- Name: hcop fk893i1het18j033e8a67r63t0; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.hcop
-    ADD CONSTRAINT fk893i1het18j033e8a67r63t0 FOREIGN KEY (human_gene_id) REFERENCES public.human_gene(id);
-
-
+ALTER TABLE ONLY orthology.hgnc_gene
+    ADD CONSTRAINT fk194i1het18j033e8a67r40g1 FOREIGN KEY (human_gene_id) REFERENCES orthology.human_gene(id);
 
 
 
 --
--- Name: hcop fk460i1het18j033e8a67r63i5; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: hcop fk893i1het18j033e8a67r63t0; Type: FK CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.hcop
-    ADD CONSTRAINT fk460i1het18j033e8a67r63i5 FOREIGN KEY (mouse_gene_id) REFERENCES public.mouse_gene(id);
-
-
-
---
--- Name: human_gene_synonym_relation fk164i1het18j033e8a67r38j1; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.human_gene_synonym_relation
-    ADD CONSTRAINT fk164i1het18j033e8a67r38j1 FOREIGN KEY (human_gene_synonym_id) REFERENCES public.human_gene_synonym(id);
-
-
-
---
--- Name: human_gene_synonym_relation fk4veyu9qij3aukv51oei4cj0cc; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.human_gene_synonym_relation
-    ADD CONSTRAINT fk4veyu9qij3aukv51oei4cj0cc FOREIGN KEY (human_gene_id) REFERENCES public.human_gene(id);
-
-
-
---
--- Name: human_mapping_filter fk7eohu2qia8aukv51oei4ck2us; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.human_mapping_filter
-    ADD CONSTRAINT fk7eohu2qia8aukv51oei4ck2us FOREIGN KEY (human_gene_id) REFERENCES public.human_gene(id);
+ALTER TABLE ONLY orthology.hcop
+    ADD CONSTRAINT fk893i1het18j033e8a67r63t0 FOREIGN KEY (human_gene_id) REFERENCES orthology.human_gene(id);
 
 
 
 
 
 --
--- Name: mouse_gene_synonym_relation fkbq04orkw7wfwvjejgdb4bp1hx; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: hcop fk460i1het18j033e8a67r63i5; Type: FK CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.mouse_gene_synonym_relation
-    ADD CONSTRAINT fkbq04orkw7wfwvjejgdb4bp1hx FOREIGN KEY (mouse_gene_synonym_id) REFERENCES public.mouse_gene_synonym(id);
-
-
+ALTER TABLE ONLY orthology.hcop
+    ADD CONSTRAINT fk460i1het18j033e8a67r63i5 FOREIGN KEY (mouse_gene_id) REFERENCES orthology.mouse_gene(id);
 
 
 
 --
--- Name: mouse_gene_synonym_relation fkhj32ev2dpo1oselyy6ymeq562; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: human_gene_synonym_relation fk164i1het18j033e8a67r38j1; Type: FK CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.mouse_gene_synonym_relation
-    ADD CONSTRAINT fkhj32ev2dpo1oselyy6ymeq562 FOREIGN KEY (mouse_gene_id) REFERENCES public.mouse_gene(id);
-
-
-
---
--- Name: mouse_mapping_filter fkhj9wmb2dpowoselyy9ymeq271; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
---
-
-ALTER TABLE ONLY public.mouse_mapping_filter
-    ADD CONSTRAINT fkhj9wmb2dpowoselyy9ymeq271 FOREIGN KEY (mouse_gene_id) REFERENCES public.mouse_gene(id);
-
+ALTER TABLE ONLY orthology.human_gene_synonym_relation
+    ADD CONSTRAINT fk164i1het18j033e8a67r38j1 FOREIGN KEY (human_gene_synonym_id) REFERENCES orthology.human_gene_synonym(id);
 
 
 
 --
--- Name: ortholog fksx4xwbhlgssh52ougho53kyty; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: human_gene_synonym_relation fk4veyu9qij3aukv51oei4cj0cc; Type: FK CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.ortholog
-    ADD CONSTRAINT fksx4xwbhlgssh52ougho53kyty FOREIGN KEY (mouse_gene_id) REFERENCES public.mouse_gene(id);
+ALTER TABLE ONLY orthology.human_gene_synonym_relation
+    ADD CONSTRAINT fk4veyu9qij3aukv51oei4cj0cc FOREIGN KEY (human_gene_id) REFERENCES orthology.human_gene(id);
 
 
 
 --
--- Name: ortholog fktgaxn9urr6pxq4spqllt8b36y; Type: FK CONSTRAINT; Schema: public; Owner: orthology_admin
+-- Name: human_mapping_filter fk7eohu2qia8aukv51oei4ck2us; Type: FK CONSTRAINT; Schema: orthology; Owner: orthology_admin
 --
 
-ALTER TABLE ONLY public.ortholog
-    ADD CONSTRAINT fktgaxn9urr6pxq4spqllt8b36y FOREIGN KEY (human_gene_id) REFERENCES public.human_gene(id);
+ALTER TABLE ONLY orthology.human_mapping_filter
+    ADD CONSTRAINT fk7eohu2qia8aukv51oei4ck2us FOREIGN KEY (human_gene_id) REFERENCES orthology.human_gene(id);
+
+
+
+
+
+--
+-- Name: mouse_gene_synonym_relation fkbq04orkw7wfwvjejgdb4bp1hx; Type: FK CONSTRAINT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.mouse_gene_synonym_relation
+    ADD CONSTRAINT fkbq04orkw7wfwvjejgdb4bp1hx FOREIGN KEY (mouse_gene_synonym_id) REFERENCES orthology.mouse_gene_synonym(id);
+
+
+
+
+
+--
+-- Name: mouse_gene_synonym_relation fkhj32ev2dpo1oselyy6ymeq562; Type: FK CONSTRAINT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.mouse_gene_synonym_relation
+    ADD CONSTRAINT fkhj32ev2dpo1oselyy6ymeq562 FOREIGN KEY (mouse_gene_id) REFERENCES orthology.mouse_gene(id);
+
+
+
+--
+-- Name: mouse_mapping_filter fkhj9wmb2dpowoselyy9ymeq271; Type: FK CONSTRAINT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.mouse_mapping_filter
+    ADD CONSTRAINT fkhj9wmb2dpowoselyy9ymeq271 FOREIGN KEY (mouse_gene_id) REFERENCES orthology.mouse_gene(id);
+
+
+
+
+--
+-- Name: ortholog fksx4xwbhlgssh52ougho53kyty; Type: FK CONSTRAINT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.ortholog
+    ADD CONSTRAINT fksx4xwbhlgssh52ougho53kyty FOREIGN KEY (mouse_gene_id) REFERENCES orthology.mouse_gene(id);
+
+
+
+--
+-- Name: ortholog fktgaxn9urr6pxq4spqllt8b36y; Type: FK CONSTRAINT; Schema: orthology; Owner: orthology_admin
+--
+
+ALTER TABLE ONLY orthology.ortholog
+    ADD CONSTRAINT fktgaxn9urr6pxq4spqllt8b36y FOREIGN KEY (human_gene_id) REFERENCES orthology.human_gene(id);
 
 
 
@@ -943,11 +953,11 @@ ALTER TABLE ONLY public.ortholog
 -- 
 -- Need to specify the schema search path
 -- The default is:
--- "$user", public
+-- "$user", orthology
 -- However this is causing an issue when specifying the SQL in the docker container.
 
 
-SET search_path TO hdb_catalog, hdb_views, public;
+SET search_path TO hdb_catalog, hdb_views, orthology, public;
 
 -- 
 -- TRIGGERS
@@ -1019,36 +1029,36 @@ GRANT SELECT ON ALL TABLES IN SCHEMA information_schema TO hasurauser;
 GRANT SELECT ON ALL TABLES IN SCHEMA pg_catalog TO hasurauser;
 
 -- Below permissions are optional. This is dependent on what access to your
--- tables/schemas - you want give to hasura. If you want expose the public
--- schema for GraphQL query then give permissions on public schema to the
+-- tables/schemas - you want give to hasura. If you want expose the orthology
+-- schema for GraphQL query then give permissions on orthology schema to the
 -- hasura user.
 -- Be careful to use these in your production db. Consult the postgres manual or
 -- your DBA and give appropriate permissions.
 
--- grant all privileges on all tables in the public schema. This can be customised:
+-- grant all privileges on all tables in the orthology schema. This can be customised:
 -- For example, if you only want to use GraphQL regular queries and not mutations,
 -- then you can set: GRANT SELECT ON ALL TABLES...
 
 
-REVOKE ALL ON SCHEMA public FROM hasurauser;
+REVOKE ALL ON SCHEMA orthology FROM hasurauser;
 
-REVOKE CREATE ON SCHEMA public FROM PUBLIC;
-REVOKE CREATE ON SCHEMA public FROM hasurauser;
+REVOKE CREATE ON SCHEMA orthology FROM orthology;
+REVOKE CREATE ON SCHEMA orthology FROM hasurauser;
 
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO hasurauser;
-GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO hasurauser;
-GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO hasurauser;
+GRANT SELECT ON ALL TABLES IN SCHEMA orthology TO hasurauser;
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA orthology TO hasurauser;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA orthology TO hasurauser;
 
 -- 
 -- Prevent Hasura from adding additional tables or triggers
 -- Make sure run ALTER DEFAULT as hasurauser
 
-ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON TABLES FROM PUBLIC;
-ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON SEQUENCES FROM PUBLIC;
-ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON FUNCTIONS FROM PUBLIC;
-ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON ROUTINES FROM PUBLIC;
-ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON TYPES FROM PUBLIC;
-ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON SCHEMAS FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON TABLES FROM orthology;
+ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON SEQUENCES FROM orthology;
+ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON FUNCTIONS FROM orthology;
+ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON ROUTINES FROM orthology;
+ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON TYPES FROM orthology;
+ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON SCHEMAS FROM orthology;
 
 ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON TABLES FROM hasurauser;
 ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON SEQUENCES FROM hasurauser;
