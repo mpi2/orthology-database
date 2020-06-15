@@ -945,7 +945,6 @@ ALTER TABLE ONLY orthology.ortholog
     ADD CONSTRAINT fktgaxn9urr6pxq4spqllt8b36y FOREIGN KEY (human_gene_id) REFERENCES orthology.human_gene(id);
 
 
-
 -- 
 -- Schema Search PATH
 -- 
@@ -957,13 +956,14 @@ ALTER TABLE ONLY orthology.ortholog
 -- However this is causing an issue when specifying the SQL in the docker container.
 
 
+ALTER DATABASE orthologydata SET search_path TO hdb_catalog, hdb_views, orthology, public;
 SET search_path TO hdb_catalog, hdb_views, orthology, public;
 
 -- 
 -- TRIGGERS
 -- 
 
-CREATE OR REPLACE FUNCTION ortholog_category()
+CREATE OR REPLACE FUNCTION orthology.ortholog_category()
   RETURNS trigger AS
 $$
 BEGIN
@@ -982,20 +982,21 @@ $$
 LANGUAGE 'plpgsql';
 
 
-ALTER FUNCTION ortholog_category OWNER TO orthology_admin;
+ALTER FUNCTION orthology.ortholog_category OWNER TO orthology_admin;
 
 
 
 CREATE TRIGGER ortholog_insert_trigger
     BEFORE INSERT ON "ortholog"
     FOR EACH ROW 
-    EXECUTE PROCEDURE ortholog_category();
+    EXECUTE PROCEDURE orthology.ortholog_category();
 
 
 CREATE TRIGGER ortholog_update_trigger
     BEFORE UPDATE ON "ortholog"
     FOR EACH ROW 
-    EXECUTE PROCEDURE ortholog_category();
+    EXECUTE PROCEDURE orthology.ortholog_category();
+
 
 
 
@@ -1012,7 +1013,7 @@ CREATE TRIGGER ortholog_update_trigger
 CREATE USER hasurauser WITH PASSWORD 'hasurauser';
 
 -- create pgcrypto extension, required for UUID
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA public;
 
 -- create the schemas required by the hasura system
 -- NOTE: If you are starting from scratch: drop the below schemas first, if they exist.
@@ -1042,7 +1043,7 @@ GRANT SELECT ON ALL TABLES IN SCHEMA pg_catalog TO hasurauser;
 
 REVOKE ALL ON SCHEMA orthology FROM hasurauser;
 
-REVOKE CREATE ON SCHEMA orthology FROM orthology;
+REVOKE CREATE ON SCHEMA orthology FROM orthology_admin;
 REVOKE CREATE ON SCHEMA orthology FROM hasurauser;
 
 GRANT SELECT ON ALL TABLES IN SCHEMA orthology TO hasurauser;
@@ -1053,12 +1054,12 @@ GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA orthology TO hasurauser;
 -- Prevent Hasura from adding additional tables or triggers
 -- Make sure run ALTER DEFAULT as hasurauser
 
-ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON TABLES FROM orthology;
-ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON SEQUENCES FROM orthology;
-ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON FUNCTIONS FROM orthology;
-ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON ROUTINES FROM orthology;
-ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON TYPES FROM orthology;
-ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON SCHEMAS FROM orthology;
+ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON TABLES FROM orthology_admin;
+ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON SEQUENCES FROM orthology_admin;
+ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON FUNCTIONS FROM orthology_admin;
+ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON ROUTINES FROM orthology_admin;
+ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON TYPES FROM orthology_admin;
+ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON SCHEMAS FROM orthology_admin;
 
 ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON TABLES FROM hasurauser;
 ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON SEQUENCES FROM hasurauser;
