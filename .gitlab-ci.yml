@@ -54,9 +54,9 @@ stages:
    - mgi-formatting
    - build
    - dev-deploy
-#   - dev-test
+   - dev-test
    - production-deploy
-#   - production-test
+   - production-test
 
 
 #
@@ -223,23 +223,23 @@ dev-deploy:
 
 
 
-#dev-test:
-#    image: ubuntu:latest
-#    stage: dev-test
-#    before_script:
-#        - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
-#    script:
-#        
-#        # Establish a data directory
-#        - mkdir -p "$MOUNT_POINT"
-#        - cd "$MOUNT_POINT"
-#        
-#        - source "$CI_PROJECT_DIR"/scripts/service_test.sh  | tee ${MOUNT_POINT}/dev-test.log
-#        
-#
-#    artifacts:
-#        paths:
-#            - "$MOUNT_POINT/"
+dev-test:
+    image: ubuntu:latest
+    stage: dev-test
+    before_script:
+        - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+    script:
+        
+        # Establish a data directory
+        - mkdir -p "$MOUNT_POINT"
+        - cd "$MOUNT_POINT"
+        
+        - source "$CI_PROJECT_DIR"/scripts/service_test.sh  | tee ${MOUNT_POINT}/dev-test.log
+        
+
+    artifacts:
+        paths:
+            - "$MOUNT_POINT/"
 
 
 
@@ -279,20 +279,20 @@ production-deploy:
 
 
 
-#production-test:
-#    image: ubuntu:latest
-#    stage: production-test
-#    before_script:
-#        - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
-#    script:
-#        
-#        # Establish a data directory
-#        - mkdir -p "$MOUNT_POINT"
-#        - cd "$MOUNT_POINT"
-#        
-#        - source "$CI_PROJECT_DIR"/scripts/service_test.sh -p  | tee ${MOUNT_POINT}/production-test.log
-#        
-#
-#    artifacts:
-#        paths:
-#            - "$MOUNT_POINT/"
+production-test:
+    image: ubuntu:latest
+    stage: production-test
+    before_script:
+        - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+    script:
+        
+        # Establish a data directory
+        - mkdir -p "$MOUNT_POINT"
+        - cd "$MOUNT_POINT"
+        
+        - source "$CI_PROJECT_DIR"/scripts/service_test.sh -p  | tee ${MOUNT_POINT}/production-test.log
+        
+
+    artifacts:
+        paths:
+            - "$MOUNT_POINT/"
