@@ -18,7 +18,7 @@ spec:
         app: hasura
     spec:
       containers:
-      - image: hasura/graphql-engine:v1.0.0-beta.2
+      - image: hasura/graphql-engine:v1.2.2
         imagePullPolicy: IfNotPresent
         name: hasura
         env:
@@ -30,6 +30,8 @@ spec:
           value: "false"
         - name: HASURA_GRAPHQL_UNAUTHORIZED_ROLE
           value: "public"
+        - name: HASURA_GRAPHQL_ENABLED_APIS
+          value: "graphql,metadata"
         ports:
         - containerPort: 8080
           protocol: TCP

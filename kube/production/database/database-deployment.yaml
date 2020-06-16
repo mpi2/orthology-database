@@ -30,9 +30,6 @@ spec:
         env:
         - name: REDEPLOY_KEY
           value: "STRING_REPLACED_DURING_REDEPLOY"
-        livenessProbe:
-          tcpSocket:
-            port: 5432
         ports:
         - containerPort: 5432
           name: http
