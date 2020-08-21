@@ -189,37 +189,37 @@ build_image:
             - ${MOUNT_POINT}
 
 
-dev-deploy:
-  stage: dev-deploy
-  image: dtzar/helm-kubectl:2.13.0
-  only:
-    refs:
-      - master
-  script:
-    - source ${MOUNT_POINT}/datetime.env
-    - echo ${NOW}
-    #
-    - kubectl config set-cluster local --server="${KUBERNETES_ENDPOINT}"
-    - kubectl config set clusters.local.certificate-authority-data "${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}"
-    - kubectl config set-credentials "${KUBERNETES_DEV_USER}" --token="${KUBERNETES_DEV_USER_TOKEN}"
-    - kubectl config set-context "${KUBERNETES_DEV_NAMESPACE}" --cluster=local --user=${KUBERNETES_DEV_USER} --namespace="${KUBERNETES_DEV_NAMESPACE}"
-    - kubectl config use-context "${KUBERNETES_DEV_NAMESPACE}"
-    - kubectl version
-    #
-    - sed -i "s/latest/${NOW}/g" kube/dev/database/database-deployment.yaml
-    - sed -i "s/STRING_REPLACED_DURING_REDEPLOY/$(date)/g" kube/dev/database/database-deployment.yaml
-    
-    - |
-      if kubectl apply -f kube/dev/database/database-deployment.yaml --record | grep -q unchanged; then
-          echo "=> Patching deployment to force image update."
-          kubectl patch -f kube/dev/database/database-deployment.yaml --record -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      else
-          echo "=> Deployment apply has changed the object, no need to force image update."
-      fi
-
-
-    - kubectl rollout status -f kube/dev/database/database-deployment.yaml
-    - kubectl get all,ing 
+#dev-deploy:
+#  stage: dev-deploy
+#  image: dtzar/helm-kubectl:2.13.0
+#  only:
+#    refs:
+#      - master
+#  script:
+#    - source ${MOUNT_POINT}/datetime.env
+#    - echo ${NOW}
+#    #
+#    - kubectl config set-cluster local --server="${KUBERNETES_ENDPOINT}"
+#    - kubectl config set clusters.local.certificate-authority-data "${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}"
+#    - kubectl config set-credentials "${KUBERNETES_DEV_USER}" --token="${KUBERNETES_DEV_USER_TOKEN}"
+#    - kubectl config set-context "${KUBERNETES_DEV_NAMESPACE}" --cluster=local --user=${KUBERNETES_DEV_USER} --namespace="${KUBERNETES_DEV_NAMESPACE}"
+#    - kubectl config use-context "${KUBERNETES_DEV_NAMESPACE}"
+#    - kubectl version
+#    #
+#    - sed -i "s/latest/${NOW}/g" kube/dev/database/database-deployment.yaml
+#    - sed -i "s/STRING_REPLACED_DURING_REDEPLOY/$(date)/g" kube/dev/database/database-deployment.yaml
+#    
+#    - |
+#      if kubectl apply -f kube/dev/database/database-deployment.yaml --record | grep -q unchanged; then
+#          echo "=> Patching deployment to force image update."
+#          kubectl patch -f kube/dev/database/database-deployment.yaml --record -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+#      else
+#          echo "=> Deployment apply has changed the object, no need to force image update."
+#      fi
+#
+#
+#    - kubectl rollout status -f kube/dev/database/database-deployment.yaml
+#    - kubectl get all,ing 
 
 
 
@@ -296,7 +296,7 @@ hx-dev-deploy:
 
 
 
-dev-test:
+hh-dev-test:
     image: ubuntu:latest
     stage: dev-test
     before_script:
@@ -307,7 +307,7 @@ dev-test:
         - mkdir -p "$MOUNT_POINT"
         - cd "$MOUNT_POINT"
         
-        - source "$CI_PROJECT_DIR"/scripts/service_test.sh  | tee ${MOUNT_POINT}/dev-test.log
+        - source "$CI_PROJECT_DIR"/scripts/service_test.sh -s="${HH_KUBERNETES_INTERNAL_ENDPOINT}/${HH_KUBERNETES_DEV_NAMESPACE}/v1/graphql"  | tee ${MOUNT_POINT}/hh-dev-test.log
         
 
     artifacts:
@@ -316,37 +316,58 @@ dev-test:
 
 
 
-production-deploy:
-  stage: production-deploy
-  image: dtzar/helm-kubectl:2.13.0
-  only:
-    refs:
-      - master
-  script:
-    - source ${MOUNT_POINT}/datetime.env
-    - echo ${NOW}
-    #
-    - kubectl config set-cluster local --server="${KUBERNETES_ENDPOINT}"
-    - kubectl config set clusters.local.certificate-authority-data "${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}"
-    - kubectl config set-credentials "${KUBERNETES_USER}" --token="${KUBERNETES_USER_TOKEN}"
-    - kubectl config set-context "${KUBERNETES_NAMESPACE}" --cluster=local --user=${KUBERNETES_USER} --namespace="${KUBERNETES_NAMESPACE}"
-    - kubectl config use-context "${KUBERNETES_NAMESPACE}"
-    - kubectl version
-    #
-    - sed -i "s/latest/${NOW}/g" kube/production/database/database-deployment.yaml
-    - sed -i "s/STRING_REPLACED_DURING_REDEPLOY/$(date)/g" kube/production/database/database-deployment.yaml
-    
-    - |
-      if kubectl apply -f kube/production/database/database-deployment.yaml --record | grep -q unchanged; then
-          echo "=> Patching deployment to force image update."
-          kubectl patch -f kube/production/database/database-deployment.yaml --record -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
-      else
-          echo "=> Deployment apply has changed the object, no need to force image update."
-      fi
+
+hx-dev-test:
+    image: ubuntu:latest
+    stage: dev-test
+    before_script:
+        - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+    script:
+        
+        # Establish a data directory
+        - mkdir -p "$MOUNT_POINT"
+        - cd "$MOUNT_POINT"
+        
+        - source "$CI_PROJECT_DIR"/scripts/service_test.sh -s="${HX_KUBERNETES_INTERNAL_ENDPOINT}/${HX_KUBERNETES_DEV_NAMESPACE}/v1/graphql"  | tee ${MOUNT_POINT}/hx-dev-test.log
+        
+
+    artifacts:
+        paths:
+            - "$MOUNT_POINT/"
 
 
-    - kubectl rollout status -f kube/production/database/database-deployment.yaml
-    - kubectl get all,ing 
+
+#production-deploy:
+#  stage: production-deploy
+#  image: dtzar/helm-kubectl:2.13.0
+#  only:
+#    refs:
+#      - master
+#  script:
+#    - source ${MOUNT_POINT}/datetime.env
+#    - echo ${NOW}
+#    #
+#    - kubectl config set-cluster local --server="${KUBERNETES_ENDPOINT}"
+#    - kubectl config set clusters.local.certificate-authority-data "${KUBERNETES_CERTIFICATE_AUTHORITY_DATA}"
+#    - kubectl config set-credentials "${KUBERNETES_USER}" --token="${KUBERNETES_USER_TOKEN}"
+#    - kubectl config set-context "${KUBERNETES_NAMESPACE}" --cluster=local --user=${KUBERNETES_USER} --namespace="${KUBERNETES_NAMESPACE}"
+#    - kubectl config use-context "${KUBERNETES_NAMESPACE}"
+#    - kubectl version
+#    #
+#    - sed -i "s/latest/${NOW}/g" kube/production/database/database-deployment.yaml
+#    - sed -i "s/STRING_REPLACED_DURING_REDEPLOY/$(date)/g" kube/production/database/database-deployment.yaml
+#    
+#    - |
+#      if kubectl apply -f kube/production/database/database-deployment.yaml --record | grep -q unchanged; then
+#          echo "=> Patching deployment to force image update."
+#          kubectl patch -f kube/production/database/database-deployment.yaml --record -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"ci-last-updated\":\"$(date +'%s')\"}}}}}"
+#      else
+#          echo "=> Deployment apply has changed the object, no need to force image update."
+#      fi
+#
+#
+#    - kubectl rollout status -f kube/production/database/database-deployment.yaml
+#    - kubectl get all,ing 
 
 
 
@@ -423,7 +444,30 @@ hx-production-deploy:
 
 
 
-production-test:
+
+
+hh-production-test:
+    image: ubuntu:latest
+    stage: v
+    before_script:
+        - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+    script:
+        
+        # Establish a data directory
+        - mkdir -p "$MOUNT_POINT"
+        - cd "$MOUNT_POINT"
+        
+        - source "$CI_PROJECT_DIR"/scripts/service_test.sh -s="${HH_KUBERNETES_INTERNAL_ENDPOINT}/${HH_KUBERNETES_NAMESPACE}/v1/graphql"  | tee ${MOUNT_POINT}/hh-production-test.log
+        
+
+    artifacts:
+        paths:
+            - "$MOUNT_POINT/"
+
+
+
+
+hx-production-test:
     image: ubuntu:latest
     stage: production-test
     before_script:
@@ -434,9 +478,10 @@ production-test:
         - mkdir -p "$MOUNT_POINT"
         - cd "$MOUNT_POINT"
         
-        - source "$CI_PROJECT_DIR"/scripts/service_test.sh -p  | tee ${MOUNT_POINT}/production-test.log
+        - source "$CI_PROJECT_DIR"/scripts/service_test.sh -s="${HX_KUBERNETES_INTERNAL_ENDPOINT}/${HX_KUBERNETES_NAMESPACE}/v1/graphql"  | tee ${MOUNT_POINT}/hx-production-test.log
         
 
     artifacts:
         paths:
             - "$MOUNT_POINT/"
+
