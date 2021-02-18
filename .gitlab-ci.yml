@@ -1,4 +1,4 @@
-image: docker:stable
+image: $CI_REGISTRY/mouse-informatics/docker:latest
 
 variables:
    # When using dind service we need to instruct docker, to talk with the
@@ -38,8 +38,6 @@ variables:
    # see: https://gitlab.com/gitlab-com/gl-infra/production/issues/982
    DOCKER_TLS_CERTDIR: ""
 
-services:
-   - docker:dind
 
 # Use this command to look at your docker environment
 # Note: This step can be overwritten by before_script sections in specific jobs.
@@ -138,6 +136,9 @@ Synonym-formatting:
 
 build_image:
     stage: build
+    services:
+        - name: $CI_REGISTRY/mouse-informatics/dind:latest
+          alias: docker
     before_script:
         - echo "${CI_REGISTRY_PASSWORD}" | docker login -u "${CI_REGISTRY_USER}" --password-stdin  ${CI_REGISTRY}
         - NOW=$(date '+%Y-%m-%d-%H-%M-%S')
@@ -166,7 +167,8 @@ build_image:
         - docker commit orthodbcontainer "${CI_REGISTRY_IMAGE}":"${NOW}"
         
         - docker tag "${CI_REGISTRY_IMAGE}":"${NOW}" "${CI_REGISTRY_IMAGE}":latest
-        - docker push "${CI_REGISTRY_IMAGE}"  | tee ${MOUNT_POINT}/push.log
+        - docker push "${CI_REGISTRY_IMAGE}":"${NOW}"  | tee ${MOUNT_POINT}/push.log
+        - docker push "${CI_REGISTRY_IMAGE}":latest  | tee ${MOUNT_POINT}/push.log
 
         - docker logout ${CI_REGISTRY}
 
@@ -174,8 +176,10 @@ build_image:
         - echo "${DOCKER_HUB_PWD}" | docker login -u "${DOCKER_HUB_USER}" --password-stdin
  
         - docker tag "${CI_REGISTRY_IMAGE}":"${NOW}" "${DOCKER_HUB_USER}"/"${DOCKER_HUB_REPO}":"${NOW}"
+        - docker push "${DOCKER_HUB_USER}"/"${DOCKER_HUB_REPO}":"${NOW}"  | tee ${MOUNT_POINT}/dockerhub-push-latest.log
+
         - docker tag "${CI_REGISTRY_IMAGE}":"${NOW}" "${DOCKER_HUB_USER}"/"${DOCKER_HUB_REPO}":latest
-        - docker push "${DOCKER_HUB_USER}"/"${DOCKER_HUB_REPO}"  | tee ${MOUNT_POINT}/dockerhub-push-latest.log
+        - docker push "${DOCKER_HUB_USER}"/"${DOCKER_HUB_REPO}":latest  | tee ${MOUNT_POINT}/dockerhub-push-latest.log
 
         - docker logout
         
@@ -193,7 +197,7 @@ hh-dev-deploy:
   stage: dev-deploy
   # Use an image with helm v2.14.3, kubectl v1.15.2, alpine 3.10
   # rancher/hyperkube:v1.15.3-rancher1 installed on the hh cluster
-  image: dtzar/helm-kubectl:2.14.3
+  image: $CI_REGISTRY/mouse-informatics/helm-kubectl-alpine:latest
   only:
     refs:
       - master
@@ -229,7 +233,7 @@ hx-dev-deploy:
   stage: dev-deploy
   # Use an image with helm v2.14.3, kubectl v1.15.2, alpine 3.10
   # rancher/hyperkube:v1.15.3-rancher1 installed on the hh cluster
-  image: dtzar/helm-kubectl:2.14.3
+  image: $CI_REGISTRY/mouse-informatics/helm-kubectl-alpine:latest
   only:
     refs:
       - master
@@ -263,7 +267,7 @@ hx-dev-deploy:
 
 
 hh-dev-test:
-    image: ubuntu:latest
+    image: $CI_REGISTRY/mouse-informatics/ubuntu:latest
     stage: dev-test
     before_script:
         - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -284,7 +288,7 @@ hh-dev-test:
 
 
 hx-dev-test:
-    image: ubuntu:latest
+    image: $CI_REGISTRY/mouse-informatics/ubuntu:latest
     stage: dev-test
     before_script:
         - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -307,7 +311,7 @@ hh-production-deploy:
   stage: production-deploy
   # Use an image with helm v2.14.3, kubectl v1.15.2, alpine 3.10
   # rancher/hyperkube:v1.15.3-rancher1 installed on the hh cluster
-  image: dtzar/helm-kubectl:2.14.3
+  image: $CI_REGISTRY/mouse-informatics/helm-kubectl-alpine:latest
   only:
     refs:
       - master
@@ -343,7 +347,7 @@ hx-production-deploy:
   stage: production-deploy
   # Use an image with helm v2.14.3, kubectl v1.15.2, alpine 3.10
   # rancher/hyperkube:v1.15.3-rancher1 installed on the hh cluster
-  image: dtzar/helm-kubectl:2.14.3
+  image: $CI_REGISTRY/mouse-informatics/helm-kubectl-alpine:latest
   only:
     refs:
       - master
@@ -378,7 +382,7 @@ hx-production-deploy:
 
 
 hh-production-test:
-    image: ubuntu:latest
+    image: $CI_REGISTRY/mouse-informatics/ubuntu:latest
     stage: production-test
     before_script:
         - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -399,7 +403,7 @@ hh-production-test:
 
 
 hx-production-test:
-    image: ubuntu:latest
+    image: $CI_REGISTRY/mouse-informatics/ubuntu:latest
     stage: production-test
     before_script:
         - apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
