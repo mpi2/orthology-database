@@ -148,7 +148,7 @@ build_image:
         - export
         - source ${MOUNT_POINT}/datetime.env
         - echo ${NOW}
-        - sed -i "s|postgres:11.3|${LOCAL_GITLAB_POSTGRES_IMAGE}|g" Dockerfile
+        - sed -i "s|postgres|${LOCAL_GITLAB_POSTGRES_IMAGE}|g" Dockerfile
 
         - docker build -t orthology-db .  | tee ${MOUNT_POINT}/build.log
         - docker run --name orthodbcontainer -v "$MOUNT_POINT:/mnt" -d orthology-db
