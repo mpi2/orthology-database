@@ -23,8 +23,11 @@ spec:
       labels:
         app: orthology-database
     spec:
+      imagePullSecrets:
+      - name: orthologydbregistrycredentials
       containers:
-      - image: rwilsonebi/orthology-db:latest
+      # - image: rwilsonebi/orthology-db:latest
+      - image: dockerhub.ebi.ac.uk/mouse-informatics/orthology-database:latest
         imagePullPolicy: Always
         name: orthology-database-container
         env:

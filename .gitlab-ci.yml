@@ -166,6 +166,8 @@ build_image:
         - docker exec orthodbcontainer sh -c "rm -r /usr/local/data"
         
         - echo "${CI_REGISTRY_IMAGE}":"${NOW}"
+        
+        - docker stop -t 120 orthodbcontainer
         - docker commit orthodbcontainer "${CI_REGISTRY_IMAGE}":"${NOW}"
         
         - docker tag "${CI_REGISTRY_IMAGE}":"${NOW}" "${CI_REGISTRY_IMAGE}":latest
