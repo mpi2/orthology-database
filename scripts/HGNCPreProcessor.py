@@ -28,7 +28,7 @@ class HgncPreProcessor:
                          'cosmic', 'omim_id', 'mirbase', 'homeodb', 'snornabase', 'bioparadigms_slc', 'orphanet',
                          'pseudogene.org', 'horde_id', 'merops', 'imgt', 'iuphar', 'kznf_gene_catalog', 'mamit-trnadb',
                          'cd', 'lncrnadb', 'enzyme_id', 'intermediate_filament_db', 'rna_central_ids', 'lncipedia',
-                         'gtrnadb', 'agr']
+                         'gtrnadb', 'agr', 'mane_select']
 
     @staticmethod
     def test_headings(row, headings):

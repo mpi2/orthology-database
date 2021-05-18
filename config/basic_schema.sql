@@ -30,6 +30,7 @@ CREATE TABLE public.hgnc_gene (
     id bigint NOT NULL,
     human_gene_id bigint,
     agr_acc_id character varying(255),
+    mane_select character varying(255),
     alias_name text,
     alias_symbol character varying(255),
     bioparadigms_slc character varying(255),
