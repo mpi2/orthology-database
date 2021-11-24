@@ -1,4 +1,4 @@
-FROM postgres:11
+FROM postgres:11-alpine
 ENV POSTGRES_USER orthology_admin
 ENV POSTGRES_PASSWORD orthology_admin
 ENV POSTGRES_DB orthologydata
