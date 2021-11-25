@@ -169,12 +169,17 @@ build_image:
         - sleep "${DB_LOAD_TIME}"
 
         - docker exec orthodbcontainer sh /usr/local/data/postgres_processing_time.sh
+        - docker cp orthodbcontainer:/usr/local/data/database.sql database.sql
         - docker exec orthodbcontainer sh -c "rm -r /usr/local/data"
-        
-        - echo "${CI_REGISTRY_IMAGE}":"${NOW}"
-        
         - docker stop -t 120 orthodbcontainer
-        - docker commit orthodbcontainer "${CI_REGISTRY_IMAGE}":"${NOW}"
+
+        - docker build -t prod-orthology-db -f Dockerfile-production .  | tee ${MOUNT_POINT}/build-production.log
+        - docker run --name prodorthodbcontainer -v "$MOUNT_POINT:/mnt" -d orthology-db
+        - sleep 60
+
+        - echo "${CI_REGISTRY_IMAGE}":"${NOW}"
+
+        - docker commit prodorthodbcontainer "${CI_REGISTRY_IMAGE}":"${NOW}"
         
         - docker tag "${CI_REGISTRY_IMAGE}":"${NOW}" "${CI_REGISTRY_IMAGE}":latest
         - docker push "${CI_REGISTRY_IMAGE}":"${NOW}"  | tee ${MOUNT_POINT}/push.log
@@ -203,7 +208,7 @@ build_image:
             - ${MOUNT_POINT}
 
 
-            
+
 sast:
   stage: test
   script:
