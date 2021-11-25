@@ -178,7 +178,7 @@ build_image:
         - sleep 60
 
         - echo "${CI_REGISTRY_IMAGE}":"${NOW}"
-
+        - docker stop -t 120 prodorthodbcontainer
         - docker commit prodorthodbcontainer "${CI_REGISTRY_IMAGE}":"${NOW}"
         
         - docker tag "${CI_REGISTRY_IMAGE}":"${NOW}" "${CI_REGISTRY_IMAGE}":latest
