@@ -174,7 +174,7 @@ build_image:
         - docker stop -t 120 orthodbcontainer
 
         - docker build -t prod-orthology-db -f Dockerfile-production .  | tee ${MOUNT_POINT}/build-production.log
-        - docker run --name prodorthodbcontainer -v "$MOUNT_POINT:/mnt" -d orthology-db
+        - docker run --name prodorthodbcontainer -v "$MOUNT_POINT:/mnt" -d prod-orthology-db
         - sleep 60
 
         - echo "${CI_REGISTRY_IMAGE}":"${NOW}"
