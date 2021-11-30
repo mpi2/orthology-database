@@ -172,7 +172,8 @@ build_image:
         - docker cp orthodbcontainer:/usr/local/data/database.sql "$MOUNT_POINT"/database.sql
         - docker exec orthodbcontainer sh -c "rm -r /usr/local/data"
         - docker stop -t 120 orthodbcontainer
-
+        
+        - sed -i "s|FROM postgres|FROM ${LOCAL_GITLAB_POSTGRES_IMAGE}|g" Dockerfile-production
         - docker build -t prod-orthology-db -f Dockerfile-production .  | tee ${MOUNT_POINT}/build-production.log
         - docker run --name prodorthodbcontainer -v "$MOUNT_POINT:/mnt" -d prod-orthology-db
         - sleep 120
