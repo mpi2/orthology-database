@@ -35,6 +35,16 @@ spec:
           value: "public"
         - name: HASURA_GRAPHQL_ENABLED_APIS
           value: "graphql,metadata"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 11010
+          runAsGroup: 11010
+          readOnlyRootFilesystem: true
+          privileged: false
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+               - all
         ports:
         - containerPort: 8080
           protocol: TCP
