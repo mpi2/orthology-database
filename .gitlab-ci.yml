@@ -81,12 +81,12 @@ HGNC_data:
         
         # Fetch data files for the service
         # HGNC_data
-        - curl -sSLN -O ftp://ftp.ebi.ac.uk/pub/databases/genenames/new/tsv/alternative_loci_set.txt
-        - curl -sSLN -O ftp://ftp.ebi.ac.uk/pub/databases/genenames/new/tsv/non_alt_loci_set.txt
-        - curl -sSLN -O ftp://ftp.ebi.ac.uk/pub/databases/genenames/new/tsv/hgnc_complete_set.txt
+        - curl -sSLN -O https://ftp.ebi.ac.uk/pub/databases/genenames/new/tsv/alternative_loci_set.txt
+        - curl -sSLN -O https://ftp.ebi.ac.uk/pub/databases/genenames/new/tsv/non_alt_loci_set.txt
+        - curl -sSLN -O https://ftp.ebi.ac.uk/pub/databases/genenames/new/tsv/hgnc_complete_set.txt
 
          # HCOP_data
-        - curl -sSLN -O ftp://ftp.ebi.ac.uk/pub/databases/genenames/hcop/human_mouse_hcop_fifteen_column.txt.gz && gunzip human_mouse_hcop_fifteen_column.txt.gz
+        - curl -sSLN -O https://ftp.ebi.ac.uk/pub/databases/genenames/hcop/human_mouse_hcop_fifteen_column.txt.gz && gunzip human_mouse_hcop_fifteen_column.txt.gz
 
     artifacts:
         paths:
