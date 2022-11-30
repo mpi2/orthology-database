@@ -35,7 +35,7 @@ CREATE TABLE public.hgnc_gene (
     alias_name text,
     alias_symbol character varying(255),
     bioparadigms_slc character varying(255),
-    ccds_acc_id character varying(255),
+    ccds_acc_id character varying(4096),
     cd character varying(255),
     cosmic character varying(255),
     date_approved_reserved timestamp without time zone,
