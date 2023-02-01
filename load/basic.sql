@@ -72,6 +72,11 @@ ALTER DEFAULT PRIVILEGES FOR ROLE hasurauser REVOKE ALL PRIVILEGES ON SCHEMAS FR
 -- GRANT ALL ON ALL TABLES IN SCHEMA <schema-name> TO hasurauser;
 -- GRANT ALL ON ALL SEQUENCES IN SCHEMA <schema-name> TO hasurauser;
 
+-- Permissions required for pg_dump
+-- https://stackoverflow.com/questions/39329228/pg-dump-archiver-db-query-failed-error-permission-denied-for-relation-abo
+GRANT USAGE ON SCHEMA public TO hasurauser;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO hasurauser;
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO hasurauser;
 
 
 
