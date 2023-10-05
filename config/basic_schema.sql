@@ -65,7 +65,7 @@ CREATE TABLE public.hgnc_gene (
     lsdb text,
     mamit_trnadb bigint,
     merops character varying(255),
-    mgi_gene_acc_id character varying(255),
+    mgi_gene_acc_id character varying(1024),
     mirbase character varying(255),
     name character varying(255),
     omim_acc_id character varying(255),
