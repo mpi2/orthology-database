@@ -7,14 +7,10 @@ class HgncPreProcessor:
 
     def __init__(self):
 
-        # Expects as input the HGNC file 'alternative_loci_set.txt'
+        # Expects as input the HGNC file 'hgnc_complete_set.txt'
         self.fileA = sys.argv[1]
         self.pathnameA = os.path.dirname(self.fileA)
         self.filenameA = os.path.abspath(self.fileA)
-
-        # Expects as input the HGNC file 'non_alt_loci_set.txt'
-        self.fileB = sys.argv[2]
-        self.filenameB = os.path.abspath(self.fileB)
 
         # Note the output is placed in the same directory as the HGNC file 'alternative_loci_set.txt'
         self.outputfilename = os.path.abspath(os.path.join(self.pathnameA, 'HGNC_synonyms.txt'))
@@ -27,7 +23,7 @@ class HgncPreProcessor:
                          'refseq_accession', 'ccds_id', 'uniprot_ids', 'pubmed_id', 'mgd_id', 'rgd_id', 'lsdb',
                          'cosmic', 'omim_id', 'mirbase', 'homeodb', 'snornabase', 'bioparadigms_slc', 'orphanet',
                          'pseudogene.org', 'horde_id', 'merops', 'imgt', 'iuphar', 'kznf_gene_catalog', 'mamit-trnadb',
-                         'cd', 'lncrnadb', 'enzyme_id', 'intermediate_filament_db', 'rna_central_ids', 'lncipedia',
+                         'cd', 'lncrnadb', 'enzyme_id', 'intermediate_filament_db', 'rna_central_id', 'lncipedia',
                          'gtrnadb', 'agr', 'mane_select', 'gencc']
 
     @staticmethod
@@ -94,5 +90,4 @@ class HgncPreProcessor:
 if __name__ == '__main__':
     processor = HgncPreProcessor()
     processor.read_hgnc_file(processor.filenameA)
-    processor.read_hgnc_file(processor.filenameB)
     processor.write_hgnc_file()

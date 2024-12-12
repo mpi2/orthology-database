@@ -76,7 +76,7 @@ CREATE TABLE public.hgnc_gene (
     pubmed_acc_id character varying(255),
     refseq_accession character varying(255),
     rgd_acc_id character varying(255),
-    rna_central_acc_ids character varying(255),
+    rna_central_id character varying(255),
     snornabase character varying(255),
     status character varying(255),
     symbol character varying(255),

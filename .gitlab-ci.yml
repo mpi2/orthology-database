@@ -81,9 +81,7 @@ HGNC_data:
         
         # Fetch data files for the service
         # HGNC_data
-        - curl -sSLN -O https://ftp.ebi.ac.uk/pub/databases/genenames/new/tsv/alternative_loci_set.txt
-        - curl -sSLN -O https://ftp.ebi.ac.uk/pub/databases/genenames/new/tsv/non_alt_loci_set.txt
-        - curl -sSLN -O https://ftp.ebi.ac.uk/pub/databases/genenames/new/tsv/hgnc_complete_set.txt
+        - curl -sSLN -O https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt
 
          # HCOP_data
         - curl -sSLN -O https://ftp.ebi.ac.uk/pub/databases/genenames/hcop/human_mouse_hcop_fifteen_column.txt.gz && gunzip human_mouse_hcop_fifteen_column.txt.gz
@@ -127,7 +125,7 @@ Synonym-formatting:
         - apk add --update python3 && rm -rf /var/cache/apk/*
     script:
         # Extract the Human gene synonyms - this creates the file HGNC_synonyms.txt
-        - python3 "$CI_PROJECT_DIR"/scripts/HGNCPreProcessor.py "$MOUNT_POINT"/alternative_loci_set.txt "$MOUNT_POINT"/non_alt_loci_set.txt
+        - python3 "$CI_PROJECT_DIR"/scripts/HGNCPreProcessor.py "$MOUNT_POINT"/hgnc_complete_set.txt
 
         # Extract the mouse gene synonyms - this creates the file Mrk_synonyms.txt
         - python3 "$CI_PROJECT_DIR"/scripts/MgiMrkPreProcessor.py "$MOUNT_POINT"/MRK_List2.rpt
